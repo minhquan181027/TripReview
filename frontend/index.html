@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TripGo - Khám phá những địa điểm nổi tiếng</title>
+    <meta name="description" content="Tìm địa điểm, xem đánh giá và chia sẻ trải nghiệm của bạn">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<!-- ============ NAVBAR ============ -->
+<nav class="navbar">
+    <div class="container">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">
+                <div class="logo-icon"><i class="fa-solid fa-compass"></i></div>
+                Trip<span>Go</span>
+            </a>
+            <ul class="nav-links">
+               <li><a href="index.html">Trang chủ</a></li>
+                <li><a href="places.html">Địa điểm</a></li>
+                <li><a href="community.html" class="active">Cộng đồng</a></li>
+                <li><a href="my-reviews.html">Đánh giá của tôi</a></li>
+            </ul>
+            <div class="nav-actions">
+                <!-- Filled by JS -->
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="container">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span class="dot"></span>
+                Khám phá Việt Nam cùng TripGo
+            </div>
+            <h1>
+                Khám phá những<br>
+                <em>địa điểm nổi tiếng</em><br>
+                đáng nhớ nhất
+            </h1>
+            <p>Tìm địa điểm, xem đánh giá thực tế và chia sẻ trải nghiệm của bạn cùng hàng nghìn du khách.</p>
+            
+            <form class="search-bar" id="search-form">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="search-input" 
+                       placeholder="Tìm kiếm địa điểm... (Hội An, Đà Nẵng, Hạ Long...)">
+                <button type="submit" class="btn-search">Tìm kiếm</button>
+            </form>
+
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <span class="num" id="stat-places">—</span>
+                    <span class="label">Địa điểm</span>
+                </div>
+                <div class="stat-item">
+                    <span class="num" id="stat-reviews">—</span>
+                    <span class="label">Đánh giá</span>
+                </div>
+                <div class="stat-item">
+                    <span class="num" id="stat-users">—</span>
+                    <span class="label">Du khách</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ FEATURED PLACES ============ -->
+<section class="section" style="background: white;">
+    <div class="container">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Địa điểm <span>nổi bật</span></h2>
+                <p class="section-subtitle">Những địa điểm được yêu thích nhất bởi du khách</p>
+            </div>
+            <a href="places.html" class="btn-link">
+                Xem tất cả <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="places-grid" id="featured-grid">
+            <!-- Rendered by JS -->
+        </div>
+    </div>
+</section>
+
+<!-- ============ LATEST REVIEWS ============ -->
+<section class="section" style="background: var(--gray-5);">
+    <div class="container">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Đánh giá <span>nổi nhật</span></h2>
+                <p class="section-subtitle">Chia sẻ thực tế từ du khách trên khắp mọi nơi</p>
+            </div>
+            <a href="places.html" class="btn-link">
+                Khám phá thêm <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="reviews-list" id="latest-reviews">
+            <!-- Rendered by JS -->
+        </div>
+    </div>
+</section>
+
+<!-- ============ CTA SECTION ============ -->
+<section class="section" style="background: linear-gradient(135deg, var(--primary) 0%, #1455c8 100%);">
+    <div class="container" style="text-align:center">
+        <h2 style="font-size:2rem;color:white;font-weight:800;margin-bottom:14px;letter-spacing:-0.5px">
+            Chia sẻ trải nghiệm của bạn
+        </h2>
+        <p style="color:rgba(255,255,255,0.75);max-width:480px;margin:0 auto 32px;font-size:0.95rem;line-height:1.7">
+            Đăng ký miễn phí và bắt đầu chia sẻ những chuyến đi đáng nhớ của bạn với cộng đồng.
+        </p>
+        <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+            <a href="auth.html" style="padding:14px 32px;background:white;color:var(--primary);border-radius:100px;font-weight:700;font-size:0.95rem;transition:all 0.25s;display:inline-flex;align-items:center;gap:8px">
+                <i class="fa-solid fa-user-plus"></i> Đăng ký ngay
+            </a>
+            <a href="places.html" style="padding:14px 32px;background:rgba(255,255,255,0.15);color:white;border:2px solid rgba(255,255,255,0.4);border-radius:100px;font-weight:600;font-size:0.95rem;transition:all 0.25s;display:inline-flex;align-items:center;gap:8px">
+                <i class="fa-solid fa-compass"></i> Khám phá địa điểm
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+    <div class="container">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <div class="logo">
+                    <div class="logo-icon"><i class="fa-solid fa-compass"></i></div>
+                    TripGo
+                </div>
+                <p>Nền tảng khám phá và đánh giá địa điểm du lịch Việt Nam. Chia sẻ trải nghiệm, kết nối cộng đồng.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Khám phá</h4>
+                <ul>
+                    <li><a href="index.html">Trang chủ</a></li>
+                    <li><a href="places.html">Địa điểm</a></li>
+                    <li><a href="my-reviews.html">Đánh giá của tôi</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Hỗ trợ</h4>
+                <ul>
+                    <li><a href="#">Liên hệ</a></li>
+                    <li><a href="#">Điều khoản</a></li>
+                    <li><a href="#">Bảo mật</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 TripGo. Được tạo  tại Việt Nam.</p>
+            <div style="display:flex;gap:16px">
+                <a href="#" style="color:rgba(255,255,255,0.4);transition:color 0.2s;font-size:1.1rem"><i class="fa-brands fa-facebook"></i></a>
+                <a href="#" style="color:rgba(255,255,255,0.4);transition:color 0.2s;font-size:1.1rem"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" style="color:rgba(255,255,255,0.4);transition:color 0.2s;font-size:1.1rem"><i class="fa-brands fa-tiktok"></i></a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- ============ MODAL ============ -->
+<div class="modal-overlay" id="modal-overlay">
+    <div class="modal-box">
+        <div id="modal-content"></div>
+    </div>
+</div>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<script src="assets/js/api.js"></script>
+<script src="assets/js/main.js"></script>
+<script>
+    // Load stats
+    async function loadStats() {
+        try {
+            const data = await API.getAllPlaces({ limit: 1 });
+            document.getElementById('stat-places').textContent = data.total + '+';
+        } catch {}
+        
+        try {
+            const reviews = await API.getLatestReviews();
+            document.getElementById('stat-reviews').textContent = '50+';
+        } catch {}
+        
+        document.getElementById('stat-users').textContent = '100+';
+    }
+    loadStats();
+</script>
+</body>
+</html>

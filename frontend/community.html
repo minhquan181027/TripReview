@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cộng đồng - TripGo</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/community.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<!-- ═══════════════ NAVBAR ═══════════════ -->
+<nav class="navbar">
+    <div class="container">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">
+                <div class="logo-icon"><i class="fa-solid fa-compass"></i></div>
+                Trip<span>Go</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html">Trang chủ</a></li>
+                <li><a href="places.html">Địa điểm</a></li>
+                <li><a href="community.html" class="active">Cộng đồng</a></li>
+                <li><a href="my-reviews.html">Đánh giá của tôi</a></li>
+            </ul>
+            <div class="nav-actions"></div>
+        </div>
+    </div>
+</nav>
+
+<!-- ═══════════════ PAGE HEADER ═══════════════ -->
+<div class="community-header">
+    <div class="container">
+        <h1><i class="fa-solid fa-users" style="color:var(--primary);margin-right:12px"></i>Cộng đồng TripGo</h1>
+        <p>Chia sẻ trải nghiệm, khám phá hành trình từ những du khách khắp nơi</p>
+    </div>
+</div>
+
+<!-- ═══════════════ MAIN LAYOUT ═══════════════ -->
+<div style="background:var(--gray-5);min-height:60vh">
+    <div class="container">
+        <div class="community-layout">
+
+            <!-- ── FEED COLUMN ── -->
+            <div class="feed-col">
+
+                <!-- Login Banner (hiện nếu chưa đăng nhập) -->
+                <div id="login-banner" style="display:none">
+                    <div class="login-banner">
+                        <p><i class="fa-solid fa-circle-info"></i> Đăng nhập để đăng bài và tham gia bình luận cùng cộng đồng!</p>
+                        <a href="auth.html"><i class="fa-solid fa-right-to-bracket"></i> Đăng nhập</a>
+                    </div>
+                </div>
+
+                <!-- Compose Box (chỉ hiện khi đã đăng nhập) -->
+                <div id="compose-section" style="display:none">
+                    <div class="compose-box">
+                        <div class="compose-top">
+                            <img id="compose-avatar" src="" class="compose-avatar" alt="">
+                            <button class="compose-trigger" id="compose-trigger">
+                                Bạn đang nghĩ gì về chuyến đi vừa rồi?
+                            </button>
+                        </div>
+
+                        <div class="compose-expanded" id="compose-expanded">
+                            <textarea class="compose-textarea" id="compose-content"
+                                placeholder="Chia sẻ trải nghiệm của bạn, hỏi về địa điểm, hoặc review chuyến đi..."
+                                maxlength="2000"></textarea>
+                            <div class="compose-char-count" id="char-count">0 / 2000</div>
+
+                            <!-- Tag địa điểm -->
+                            <div class="tag-place-row" id="tag-place-row" style="display:none">
+                                <i class="fa-solid fa-location-dot" style="color:var(--secondary);font-size:.9rem"></i>
+                                <select class="tag-place-select" id="tag-place-select">
+                                    <option value="">-- Chọn địa điểm --</option>
+                                </select>
+                            </div>
+
+                            <!-- Image URL -->
+                            <div class="image-url-row" id="image-url-row" style="display:none">
+                                <i class="fa-regular fa-image" style="color:var(--gray-3);font-size:.9rem"></i>
+                                <input type="url" class="image-url-input" id="image-url-input"
+                                    placeholder="Dán URL ảnh vào đây (https://...)">
+                            </div>
+
+                            <div class="compose-footer">
+                                <div class="compose-actions-left">
+                                    <button class="compose-action-btn" id="btn-toggle-place">
+                                        <i class="fa-solid fa-location-dot"></i> Tag địa điểm
+                                    </button>
+                                    <button class="compose-action-btn" id="btn-toggle-image">
+                                        <i class="fa-regular fa-image"></i> Thêm ảnh
+                                    </button>
+                                </div>
+                                <div class="compose-actions-right">
+                                    <button class="btn-compose-cancel" id="btn-compose-cancel">Huỷ</button>
+                                    <button class="btn-compose-submit" id="btn-compose-submit" disabled>
+                                        <i class="fa-solid fa-paper-plane"></i> Đăng bài
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Posts Feed -->
+                <div id="posts-feed">
+                    <!-- Skeleton loading -->
+                    <div id="feed-skeleton">
+                        ${Array(3).fill(`
+                        <div class="post-skeleton">
+                            <div style="display:flex;gap:12px;margin-bottom:14px">
+                                <div class="skeleton" style="width:42px;height:42px;border-radius:50%;flex-shrink:0"></div>
+                                <div style="flex:1">
+                                    <div class="skeleton skeleton-line" style="width:35%;margin-bottom:6px"></div>
+                                    <div class="skeleton skeleton-line shorter"></div>
+                                </div>
+                            </div>
+                            <div class="skeleton skeleton-line" style="margin-bottom:8px"></div>
+                            <div class="skeleton skeleton-line" style="width:80%;margin-bottom:8px"></div>
+                            <div class="skeleton skeleton-line short"></div>
+                        </div>`).join('')}
+                    </div>
+                </div>
+
+                <!-- Load more -->
+                <div class="load-more-wrap" id="load-more-wrap" style="display:none">
+                    <button class="btn-load-more" id="btn-load-more">
+                        <i class="fa-solid fa-rotate"></i> Tải thêm bài viết
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- ── SIDEBAR ── -->
+            <aside class="community-sidebar">
+
+                <!-- Hot places -->
+                <div class="sidebar-card">
+                    <h3><i class="fa-solid fa-fire"></i> Địa điểm hot</h3>
+                    <div id="sidebar-hot-places">
+                        ${Array(4).fill(`
+                        <div class="hot-place-item">
+                            <div class="skeleton" style="width:48px;height:48px;border-radius:8px;flex-shrink:0"></div>
+                            <div style="flex:1">
+                                <div class="skeleton skeleton-line short" style="margin-bottom:5px"></div>
+                                <div class="skeleton skeleton-line shorter"></div>
+                            </div>
+                        </div>`).join('')}
+                    </div>
+                </div>
+
+                <!-- Community rules -->
+                <div class="sidebar-card">
+                    <h3><i class="fa-solid fa-shield-halved"></i> Quy tắc cộng đồng</h3>
+                    <ul class="rules-list">
+                        <li><i class="fa-solid fa-check-circle"></i> Chia sẻ trải nghiệm thực tế, trung thực</li>
+                        <li><i class="fa-solid fa-check-circle"></i> Tôn trọng ý kiến của người khác</li>
+                        <li><i class="fa-solid fa-check-circle"></i> Không spam hoặc quảng cáo</li>
+                        <li><i class="fa-solid fa-check-circle"></i> Không đăng nội dung không phù hợp</li>
+                        <li><i class="fa-solid fa-check-circle"></i> Tag đúng địa điểm khi chia sẻ</li>
+                    </ul>
+                </div>
+
+                <!-- Stats -->
+                <div class="sidebar-card" id="sidebar-stats">
+                    <h3><i class="fa-solid fa-chart-bar"></i> Thống kê</h3>
+                    <div style="display:flex;flex-direction:column;gap:12px" id="stats-content">
+                        <div class="skeleton skeleton-line" style="margin-bottom:4px"></div>
+                        <div class="skeleton skeleton-line short"></div>
+                        <div class="skeleton skeleton-line shorter"></div>
+                    </div>
+                </div>
+
+            </aside>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer>
+    <div class="container">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <div class="logo">
+                    <div class="logo-icon"><i class="fa-solid fa-compass"></i></div>
+                    TripGo
+                </div>
+                <p>Nền tảng khám phá và đánh giá địa điểm du lịch Việt Nam.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Khám phá</h4>
+                <ul>
+                    <li><a href="index.html">Trang chủ</a></li>
+                    <li><a href="places.html">Địa điểm</a></li>
+                    <li><a href="community.html">Cộng đồng</a></li>
+                    <li><a href="my-reviews.html">Đánh giá của tôi</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Hỗ trợ</h4>
+                <ul>
+                    <li><a href="#">Liên hệ</a></li>
+                    <li><a href="#">Điều khoản</a></li>
+                    <li><a href="#">Bảo mật</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 TripGo. Được tạo với ❤️ tại Việt Nam.</p>
+        </div>
+    </div>
+</footer>
+
+<div id="toast-container"></div>
+
+<!-- ═══════════════ SCRIPTS ═══════════════ -->
+<script src="assets/js/api.js"></script>
+<script>
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+let currentPage  = 1;
+let totalPages   = 1;
+let isLoading    = false;
+let allPlaces    = [];          // dùng cho tag địa điểm
+
+const user       = Auth.getUser();
+const isLoggedIn = Auth.isLoggedIn();
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', async () => {
+    initNavbar();
+    initUI();
+    await Promise.all([loadFeed(1), loadSidebarPlaces(), loadStats()]);
+});
+
+function initUI() {
+    // Hiện / ẩn compose / banner
+    if (isLoggedIn && user) {
+        document.getElementById('compose-section').style.display = 'block';
+        document.getElementById('login-banner').style.display   = 'none';
+        document.getElementById('compose-avatar').src = user.avatar_url ||
+            `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullname)}&background=1a6ef5&color=fff`;
+    } else {
+        document.getElementById('login-banner').style.display   = 'block';
+        document.getElementById('compose-section').style.display = 'none';
+    }
+
+    // Compose trigger click → mở expand
+    document.getElementById('compose-trigger')?.addEventListener('click', openCompose);
+
+    // Cancel
+    document.getElementById('btn-compose-cancel')?.addEventListener('click', closeCompose);
+
+    // Toggle tag place
+    document.getElementById('btn-toggle-place')?.addEventListener('click', () => {
+        const row = document.getElementById('tag-place-row');
+        const btn = document.getElementById('btn-toggle-place');
+        const isOpen = row.style.display !== 'none';
+        row.style.display = isOpen ? 'none' : 'flex';
+        btn.classList.toggle('active', !isOpen);
+        if (!isOpen && allPlaces.length === 0) loadPlacesForTag();
+    });
+
+    // Toggle image
+    document.getElementById('btn-toggle-image')?.addEventListener('click', () => {
+        const row = document.getElementById('image-url-row');
+        const btn = document.getElementById('btn-toggle-image');
+        const isOpen = row.style.display !== 'none';
+        row.style.display = isOpen ? 'none' : 'flex';
+        btn.classList.toggle('active', !isOpen);
+    });
+
+    // Char count & enable/disable submit
+    document.getElementById('compose-content')?.addEventListener('input', (e) => {
+        const len = e.target.value.length;
+        const cc  = document.getElementById('char-count');
+        cc.textContent = `${len} / 2000`;
+        cc.className = `compose-char-count${len > 1800 ? ' warn' : ''}${len >= 2000 ? ' over' : ''}`;
+        const btn = document.getElementById('btn-compose-submit');
+        btn.disabled = len === 0 || len > 2000;
+    });
+
+    // Submit post
+    document.getElementById('btn-compose-submit')?.addEventListener('click', submitPost);
+
+    // Load more
+    document.getElementById('btn-load-more')?.addEventListener('click', () => {
+        if (!isLoading && currentPage < totalPages) loadFeed(currentPage + 1, true);
+    });
+}
+
+function openCompose() {
+    document.getElementById('compose-trigger').style.display  = 'none';
+    document.getElementById('compose-expanded').classList.add('open');
+    document.getElementById('compose-content').focus();
+}
+
+function closeCompose() {
+    document.getElementById('compose-trigger').style.display  = '';
+    document.getElementById('compose-expanded').classList.remove('open');
+    document.getElementById('compose-content').value = '';
+    document.getElementById('char-count').textContent = '0 / 2000';
+    document.getElementById('btn-compose-submit').disabled = true;
+    document.getElementById('tag-place-row').style.display   = 'none';
+    document.getElementById('image-url-row').style.display   = 'none';
+    document.getElementById('btn-toggle-place').classList.remove('active');
+    document.getElementById('btn-toggle-image').classList.remove('active');
+    document.getElementById('tag-place-select').value = '';
+    document.getElementById('image-url-input').value = '';
+}
+
+// ═══════════════════════════════════════════════════
+// LOAD PLACES (for tag dropdown)
+// ═══════════════════════════════════════════════════
+async function loadPlacesForTag() {
+    try {
+        const data = await API.getAllPlaces({ limit: 50 });
+        allPlaces = data.places || [];
+        const sel = document.getElementById('tag-place-select');
+        allPlaces.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p.place_id;
+            opt.textContent = `${p.name} — ${p.location}`;
+            sel.appendChild(opt);
+        });
+    } catch {}
+}
+
+// ═══════════════════════════════════════════════════
+// SUBMIT POST
+// ═══════════════════════════════════════════════════
+async function submitPost() {
+    const content   = document.getElementById('compose-content').value.trim();
+    const image_url = document.getElementById('image-url-input').value.trim();
+    const place_id  = document.getElementById('tag-place-select').value || null;
+
+    if (!content) return showToast('Vui lòng nhập nội dung bài đăng', 'error');
+
+    const btn = document.getElementById('btn-compose-submit');
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang đăng...';
+    btn.disabled = true;
+
+    try {
+        const res = await API.createPost({ content, image_url: image_url || null, place_id });
+        if (res.post) {
+            showToast('Đăng bài thành công! 🎉');
+            closeCompose();
+            // Prepend bài mới lên đầu feed
+            prependPost(res.post);
+        } else {
+            showToast(res.message || 'Có lỗi xảy ra', 'error');
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Đăng bài';
+            btn.disabled = false;
+        }
+    } catch {
+        showToast('Lỗi kết nối server', 'error');
+        btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Đăng bài';
+        btn.disabled = false;
+    }
+}
+
+// ═══════════════════════════════════════════════════
+// LOAD FEED
+// ═══════════════════════════════════════════════════
+async function loadFeed(page = 1, append = false) {
+    isLoading = true;
+
+    if (!append) {
+        // Skeleton đã render sẵn trong HTML, chỉ cần clear feed thật
+        document.getElementById('feed-skeleton').style.display = 'block';
+    }
+
+    const loadMoreBtn = document.getElementById('btn-load-more');
+    if (loadMoreBtn) {
+        loadMoreBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang tải...';
+        loadMoreBtn.disabled = true;
+    }
+
+    try {
+        const data = await API.getFeed(page);
+        currentPage = data.page;
+        totalPages  = data.totalPages;
+
+        document.getElementById('feed-skeleton').style.display = 'none';
+
+        if (!data.posts?.length && page === 1) {
+            document.getElementById('posts-feed').innerHTML = `
+                <div class="feed-empty">
+                    <div class="icon">🌏</div>
+                    <h3>Chưa có bài đăng nào</h3>
+                    <p>Hãy là người đầu tiên chia sẻ trải nghiệm!</p>
+                </div>`;
+            return;
+        }
+
+        if (append) {
+            data.posts.forEach(p => {
+                const el = createPostElement(p);
+                document.getElementById('posts-feed').appendChild(el);
+            });
+        } else {
+            document.getElementById('posts-feed').innerHTML = '';
+            data.posts.forEach(p => {
+                document.getElementById('posts-feed').appendChild(createPostElement(p));
+            });
+        }
+
+        // Load more button
+        const wrap = document.getElementById('load-more-wrap');
+        if (currentPage < totalPages) {
+            wrap.style.display = 'block';
+            loadMoreBtn.innerHTML = '<i class="fa-solid fa-rotate"></i> Tải thêm bài viết';
+            loadMoreBtn.disabled = false;
+        } else {
+            wrap.style.display = 'none';
+        }
+
+    } catch (err) {
+        document.getElementById('feed-skeleton').style.display = 'none';
+        document.getElementById('posts-feed').innerHTML = `
+            <div class="feed-empty">
+                <div class="icon">⚠️</div>
+                <h3>Không thể tải dữ liệu</h3>
+                <p>Kiểm tra kết nối backend và thử lại</p>
+            </div>`;
+    } finally {
+        isLoading = false;
+    }
+}
+
+// ═══════════════════════════════════════════════════
+// CREATE POST ELEMENT
+// ═══════════════════════════════════════════════════
+function createPostElement(post) {
+    const div = document.createElement('div');
+    div.className = 'post-card';
+    div.id = `post-${post.post_id}`;
+    div.innerHTML = renderPostHTML(post);
+    attachPostEvents(div, post);
+    return div;
+}
+
+function prependPost(post) {
+    const feed = document.getElementById('posts-feed');
+    // Xoá empty state nếu có
+    const empty = feed.querySelector('.feed-empty');
+    if (empty) empty.remove();
+
+    const el = createPostElement(post);
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(-16px)';
+    feed.insertBefore(el, feed.firstChild);
+    requestAnimationFrame(() => {
+        el.style.transition = 'all .35s ease';
+        el.style.opacity = '1';
+        el.style.transform = 'translateY(0)';
+    });
+}
+
+function renderPostHTML(post) {
+    const isOwner   = isLoggedIn && user && user.user_id === post.author_id;
+    const isLiked   = post.is_liked == 1;
+    const avatarSrc = post.author_avatar ||
+        `https://ui-avatars.com/api/?name=${encodeURIComponent(post.author_name)}&background=1a6ef5&color=fff`;
+    const myAvatarSrc = isLoggedIn && user
+        ? (user.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullname)}&background=1a6ef5&color=fff`)
+        : '';
+
+    const isLong  = post.content.length > 280;
+    const safeContent = post.content.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+    return `
+        <!-- Header -->
+        <div class="post-header">
+            <div class="post-author">
+                <img src="${avatarSrc}" class="post-avatar" alt="${post.author_name}"
+                     onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(post.author_name)}&background=1a6ef5&color=fff'">
+                <div class="post-author-info">
+                    <div class="name">${post.author_name}</div>
+                    <div class="time">${timeAgo(post.created_at)}</div>
+                </div>
+            </div>
+            ${isOwner ? `
+            <div class="post-menu-btn" data-id="${post.post_id}">
+                <i class="fa-solid fa-ellipsis"></i>
+                <div class="post-dropdown">
+                    <div class="post-dropdown-item danger" data-action="delete">
+                        <i class="fa-regular fa-trash-can"></i> Xoá bài viết
+                    </div>
+                </div>
+            </div>` : ''}
+        </div>
+
+        <!-- Place tag -->
+        ${post.place_id ? `
+        <div class="place-tag-chip" onclick="window.location.href='places.html'">
+            <i class="fa-solid fa-location-dot"></i>
+            ${post.place_name} · ${post.place_location}
+        </div>` : ''}
+
+        <!-- Content -->
+        <div class="post-content${isLong ? ' collapsed' : ''}" id="content-${post.post_id}">${safeContent}</div>
+        ${isLong ? `<span class="read-more-btn" id="readmore-${post.post_id}" data-id="${post.post_id}">Xem thêm</span>` : ''}
+
+        <!-- Image -->
+        ${post.image_url ? `
+        <div class="post-image">
+            <img src="${post.image_url}" alt="Ảnh bài đăng" loading="lazy"
+                 onerror="this.parentElement.style.display='none'">
+        </div>` : ''}
+
+        <!-- Footer -->
+        <div class="post-footer">
+            <div class="post-stats">
+                <span class="post-stat-item" data-toggle="comments-${post.post_id}">
+                    <i class="fa-regular fa-heart" style="color:#e74c3c"></i>
+                    <span id="like-count-${post.post_id}">${post.like_count}</span> lượt thích
+                </span>
+                <span class="post-stat-item" data-toggle="comments-${post.post_id}">
+                    <span id="cmt-count-${post.post_id}">${post.comment_count}</span> bình luận
+                </span>
+            </div>
+
+            <div class="post-actions">
+                <button class="post-action-btn${isLiked ? ' liked' : ''}" id="like-btn-${post.post_id}"
+                        data-action="like" data-id="${post.post_id}">
+                    <i class="fa-${isLiked ? 'solid' : 'regular'} fa-heart"></i>
+                    ${isLiked ? 'Đã thích' : 'Thích'}
+                </button>
+                <button class="post-action-btn" data-action="comment" data-id="${post.post_id}">
+                    <i class="fa-regular fa-comment"></i> Bình luận
+                </button>
+                <button class="post-action-btn" data-action="share" data-id="${post.post_id}">
+                    <i class="fa-solid fa-share-nodes"></i> Chia sẻ
+                </button>
+            </div>
+        </div>
+
+        <!-- Comments Section (hidden by default) -->
+        <div class="comments-section" id="comments-${post.post_id}">
+            <div class="comments-list" id="comments-list-${post.post_id}">
+                <div style="text-align:center;padding:12px">
+                    <i class="fa-solid fa-spinner fa-spin" style="color:var(--primary)"></i>
+                </div>
+            </div>
+            ${isLoggedIn ? `
+            <div class="comment-input-row">
+                <img src="${myAvatarSrc}" class="comment-input-avatar" alt=""
+                     onerror="this.src='https://ui-avatars.com/api/?name=U&background=1a6ef5&color=fff'">
+                <div class="comment-input-wrap">
+                    <input type="text" id="comment-input-${post.post_id}"
+                           placeholder="Viết bình luận..." maxlength="500">
+                    <button class="comment-send-btn" id="comment-send-${post.post_id}"
+                            data-id="${post.post_id}">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>` : `
+            <p class="comment-login-hint">
+                <a href="auth.html">Đăng nhập</a> để bình luận
+            </p>`}
+        </div>
+    `;
+}
+
+function attachPostEvents(el, post) {
+    // Read more
+    el.querySelector(`#readmore-${post.post_id}`)?.addEventListener('click', (e) => {
+        const content = el.querySelector(`#content-${post.post_id}`);
+        const btn     = e.target;
+        content.classList.toggle('collapsed');
+        btn.textContent = content.classList.contains('collapsed') ? 'Xem thêm' : 'Thu gọn';
+    });
+
+    // Menu toggle
+    el.querySelector('.post-menu-btn')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        el.querySelector('.post-menu-btn').classList.toggle('open');
+    });
+
+    // Delete
+    el.querySelector('[data-action="delete"]')?.addEventListener('click', () => deletePost(post.post_id));
+
+    // Like
+    el.querySelector('[data-action="like"]')?.addEventListener('click', () => handleLike(post.post_id));
+
+    // Comment toggle
+    el.querySelector('[data-action="comment"]')?.addEventListener('click', () => toggleComments(post.post_id));
+
+    // Share
+    el.querySelector('[data-action="share"]')?.addEventListener('click', () => {
+        navigator.clipboard?.writeText(window.location.href + '#post-' + post.post_id)
+            .then(() => showToast('Đã sao chép link bài viết!'))
+            .catch(() => showToast('Link: ' + window.location.href, 'success'));
+    });
+
+    // Comment send btn + enter key
+    const input   = el.querySelector(`#comment-input-${post.post_id}`);
+    const sendBtn = el.querySelector(`#comment-send-${post.post_id}`);
+    if (input && sendBtn) {
+        input.addEventListener('input', () => {
+            sendBtn.classList.toggle('ready', input.value.trim().length > 0);
+        });
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey && input.value.trim()) {
+                e.preventDefault();
+                submitComment(post.post_id, input);
+            }
+        });
+        sendBtn.addEventListener('click', () => {
+            if (input.value.trim()) submitComment(post.post_id, input);
+        });
+    }
+
+    // Stats click → toggle comments
+    el.querySelectorAll('[data-toggle]').forEach(s => {
+        s.addEventListener('click', () => toggleComments(post.post_id));
+    });
+
+    // Close menu khi click ngoài
+    document.addEventListener('click', () => {
+        el.querySelector('.post-menu-btn')?.classList.remove('open');
+    });
+}
+
+// ═══════════════════════════════════════════════════
+// LIKE
+// ═══════════════════════════════════════════════════
+async function handleLike(postId) {
+    if (!isLoggedIn) { showToast('Vui lòng đăng nhập để thích bài viết', 'error'); return; }
+
+    const btn       = document.getElementById(`like-btn-${postId}`);
+    const countEl   = document.getElementById(`like-count-${postId}`);
+    const isLiked   = btn.classList.contains('liked');
+
+    // Optimistic update
+    btn.classList.toggle('liked', !isLiked);
+    btn.innerHTML = `<i class="fa-${!isLiked ? 'solid' : 'regular'} fa-heart"></i> ${!isLiked ? 'Đã thích' : 'Thích'}`;
+    countEl.textContent = parseInt(countEl.textContent) + (!isLiked ? 1 : -1);
+
+    try {
+        const res = await API.toggleLike(postId);
+        countEl.textContent = res.like_count;
+        btn.classList.toggle('liked', res.liked);
+        btn.innerHTML = `<i class="fa-${res.liked ? 'solid' : 'regular'} fa-heart"></i> ${res.liked ? 'Đã thích' : 'Thích'}`;
+    } catch {
+        // Rollback
+        btn.classList.toggle('liked', isLiked);
+        btn.innerHTML = `<i class="fa-${isLiked ? 'solid' : 'regular'} fa-heart"></i> ${isLiked ? 'Đã thích' : 'Thích'}`;
+        countEl.textContent = parseInt(countEl.textContent) + (isLiked ? 1 : -1);
+        showToast('Lỗi kết nối', 'error');
+    }
+}
+
+// ═══════════════════════════════════════════════════
+// COMMENTS
+// ═══════════════════════════════════════════════════
+const loadedComments = new Set();
+
+async function toggleComments(postId) {
+    const section = document.getElementById(`comments-${postId}`);
+    const isOpen  = section.classList.contains('open');
+
+    if (isOpen) {
+        section.classList.remove('open');
+        return;
+    }
+
+    section.classList.add('open');
+
+    if (!loadedComments.has(postId)) {
+        await loadComments(postId);
+        loadedComments.add(postId);
+        // Focus input
+        document.getElementById(`comment-input-${postId}`)?.focus();
+    } else {
+        document.getElementById(`comment-input-${postId}`)?.focus();
+    }
+}
+
+async function loadComments(postId) {
+    const list = document.getElementById(`comments-list-${postId}`);
+    try {
+        const comments = await API.getComments(postId);
+        if (!comments.length) {
+            list.innerHTML = '<p style="font-size:.84rem;color:var(--gray-3);padding:6px 0">Chưa có bình luận nào.</p>';
+            return;
+        }
+        list.innerHTML = comments.map(c => renderComment(c, postId)).join('');
+        // Attach delete events
+        list.querySelectorAll('[data-delete-comment]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                handleDeleteComment(postId, btn.dataset.deleteComment, btn.closest('.comment-item'));
+            });
+        });
+    } catch {
+        list.innerHTML = '<p style="font-size:.84rem;color:#e74c3c;padding:6px 0">Lỗi tải bình luận</p>';
+    }
+}
+
+function renderComment(c, postId) {
+    const avatarSrc = c.avatar_url ||
+        `https://ui-avatars.com/api/?name=${encodeURIComponent(c.fullname)}&background=1a6ef5&color=fff`;
+    const isOwner = isLoggedIn && user && user.user_id === c.user_id;
+    return `
+        <div class="comment-item" id="comment-item-${c.comment_id}">
+            <img src="${avatarSrc}" class="comment-avatar" alt="${c.fullname}"
+                 onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(c.fullname)}&background=1a6ef5&color=fff'">
+            <div style="flex:1">
+                <div class="comment-bubble">
+                    <div class="comment-name">${c.fullname}</div>
+                    <div class="comment-text">${c.content.replace(/</g,'&lt;')}</div>
+                </div>
+                <div class="comment-meta">
+                    <span class="comment-time">${timeAgo(c.created_at)}</span>
+                    ${isOwner ? `<span class="comment-delete" data-delete-comment="${c.comment_id}">Xoá</span>` : ''}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+async function submitComment(postId, inputEl) {
+    const content = inputEl.value.trim();
+    if (!content) return;
+
+    const sendBtn = document.getElementById(`comment-send-${postId}`);
+    sendBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+    sendBtn.classList.remove('ready');
+    inputEl.disabled = true;
+
+    try {
+        const res = await API.addComment(postId, content);
+        if (res.comment) {
+            inputEl.value = '';
+            inputEl.disabled = false;
+            sendBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
+
+            const list = document.getElementById(`comments-list-${postId}`);
+            // Xoá placeholder nếu có
+            const placeholder = list.querySelector('p');
+            if (placeholder) placeholder.remove();
+
+            // Append comment mới
+            const temp = document.createElement('div');
+            temp.innerHTML = renderComment(res.comment, postId);
+            const commentEl = temp.firstElementChild;
+            list.appendChild(commentEl);
+            commentEl.style.opacity = '0';
+            requestAnimationFrame(() => {
+                commentEl.style.transition = 'opacity .25s ease';
+                commentEl.style.opacity = '1';
+            });
+            commentEl.querySelector('[data-delete-comment]')?.addEventListener('click', () => {
+                handleDeleteComment(postId, res.comment.comment_id, commentEl);
+            });
+
+            // Update count
+            const cc = document.getElementById(`cmt-count-${postId}`);
+            if (cc) cc.textContent = parseInt(cc.textContent) + 1;
+            loadedComments.add(postId);
+        } else {
+            showToast(res.message || 'Lỗi gửi bình luận', 'error');
+            inputEl.disabled = false;
+        }
+    } catch {
+        showToast('Lỗi kết nối', 'error');
+        inputEl.disabled = false;
+    }
+}
+
+async function handleDeleteComment(postId, commentId, el) {
+    try {
+        const res = await API.deleteComment(postId, commentId);
+        if (res.message === 'Đã xoá bình luận') {
+            el.style.opacity = '0';
+            el.style.transition = 'opacity .25s ease';
+            setTimeout(() => el.remove(), 250);
+            const cc = document.getElementById(`cmt-count-${postId}`);
+            if (cc) cc.textContent = Math.max(0, parseInt(cc.textContent) - 1);
+            showToast('Đã xoá bình luận');
+        }
+    } catch {
+        showToast('Lỗi xoá bình luận', 'error');
+    }
+}
+
+// ═══════════════════════════════════════════════════
+// DELETE POST
+// ═══════════════════════════════════════════════════
+async function deletePost(postId) {
+    if (!confirm('Bạn có chắc muốn xoá bài viết này không?')) return;
+    try {
+        const res = await API.deletePost(postId);
+        if (res.message === 'Đã xoá bài đăng') {
+            const card = document.getElementById(`post-${postId}`);
+            card.style.opacity = '0';
+            card.style.transform = 'translateX(-16px)';
+            card.style.transition = 'all .3s ease';
+            setTimeout(() => card.remove(), 300);
+            showToast('Đã xoá bài viết');
+        }
+    } catch {
+        showToast('Lỗi xoá bài viết', 'error');
+    }
+}
+
+// ═══════════════════════════════════════════════════
+// SIDEBAR
+// ═══════════════════════════════════════════════════
+async function loadSidebarPlaces() {
+    try {
+        const data = await API.getFeaturedPlaces();
+        const wrap = document.getElementById('sidebar-hot-places');
+        wrap.innerHTML = data.slice(0, 5).map(p => `
+            <div class="hot-place-item" onclick="window.location.href='places.html'">
+                <img src="${p.image_url}" alt="${p.name}"
+                     onerror="this.src='https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=200'">
+                <div class="hp-info">
+                    <div class="hp-name">${p.name}</div>
+                    <div class="hp-loc"><i class="fa-solid fa-location-dot" style="color:var(--secondary);font-size:.7rem"></i> ${p.location}</div>
+                </div>
+                <div class="hp-rating"><i class="fa-solid fa-star" style="font-size:.75rem"></i> ${parseFloat(p.avg_rating).toFixed(1)}</div>
+            </div>
+        `).join('');
+    } catch {
+        document.getElementById('sidebar-hot-places').innerHTML =
+            '<p style="font-size:.83rem;color:var(--gray-3)">Không tải được dữ liệu</p>';
+    }
+}
+
+async function loadStats() {
+    try {
+        const [placesData, feedData] = await Promise.all([
+            API.getAllPlaces({ limit: 1 }),
+            API.getFeed(1)
+        ]);
+        document.getElementById('stats-content').innerHTML = `
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:.86rem">
+                <span style="color:var(--gray-2)">📝 Bài đăng</span>
+                <strong>${feedData.total || 0}</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:.86rem">
+                <span style="color:var(--gray-2)">🗺️ Địa điểm</span>
+                <strong>${placesData.total || 0}</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:.86rem">
+                <span style="color:var(--gray-2)">👥 Du khách</span>
+                <strong>100+</strong>
+            </div>
+        `;
+    } catch {}
+}
+</script>
+</body>
+</html>

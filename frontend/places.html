@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Địa điểm - TripGo</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .places-page-header {
+            background: linear-gradient(135deg, var(--dark) 0%, var(--dark-2) 100%);
+            padding: 110px 0 52px;
+            color: white;
+        }
+
+        .places-page-header h1 {
+            font-size: clamp(1.7rem, 3vw, 2.4rem);
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+
+        .places-page-header p {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.93rem;
+        }
+
+        .places-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .search-bar-inline {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            border: 1.5px solid var(--gray-4);
+            border-radius: var(--radius-full);
+            padding: 10px 20px;
+            min-width: 240px;
+        }
+
+        .search-bar-inline i { color: var(--gray-3); }
+
+        .search-bar-inline input {
+            flex: 1;
+            font-size: 0.9rem;
+            color: var(--dark);
+            background: transparent;
+        }
+
+        .search-bar-inline input::placeholder { color: var(--gray-3); }
+
+        .sort-select {
+            padding: 11px 18px;
+            border: 1.5px solid var(--gray-4);
+            border-radius: var(--radius-full);
+            font-size: 0.88rem;
+            color: var(--dark);
+            background: white;
+            cursor: pointer;
+            appearance: none;
+            padding-right: 36px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238fa3b3' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            min-width: 170px;
+        }
+
+        .results-info {
+            font-size: 0.85rem;
+            color: var(--gray-3);
+            margin-bottom: 24px;
+        }
+
+        .results-info strong { color: var(--dark); font-weight: 600; }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="container">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">
+                <div class="logo-icon"><i class="fa-solid fa-compass"></i></div>
+                Trip<span>Go</span>
+            </a>
+            <ul class="nav-links">
+               <li><a href="index.html">Trang chủ</a></li>
+                <li><a href="places.html">Địa điểm</a></li>
+                <li><a href="community.html" class="active">Cộng đồng</a></li>
+                <li><a href="my-reviews.html">Đánh giá của tôi</a></li>
+            </ul>
+            <div class="nav-actions"></div>
+        </div>
+    </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="places-page-header">
+    <div class="container">
+        <h1><i class="fa-solid fa-compass" style="color:var(--primary);margin-right:12px"></i>Địa điểm du lịch</h1>
+        <p>Khám phá hàng trăm địa điểm nổi tiếng trên khắp Việt Nam</p>
+    </div>
+</div>
+
+<!-- MAIN -->
+<section class="section" style="background:var(--gray-5);padding-top:40px">
+    <div class="container">
+
+        <!-- Toolbar -->
+        <div class="places-toolbar">
+            <div class="search-bar-inline">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="search-input" placeholder="Tìm kiếm địa điểm...">
+            </div>
+            <select class="sort-select" id="sort-select">
+                <option value="rating">⭐ Đánh giá cao nhất</option>
+                <option value="newest">🕐 Mới nhất</option>
+                <option value="reviews">💬 Nhiều đánh giá nhất</option>
+            </select>
+        </div>
+
+        <p class="results-info" id="results-info"></p>
+
+        <!-- Grid -->
+        <div class="places-grid" id="places-grid">
+            <!-- Rendered by JS -->
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="pagination"></div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="container">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <div class="logo">
+                    <div class="logo-icon"><i class="fa-solid fa-compass"></i></div>
+                    TripGo
+                </div>
+                <p>Nền tảng khám phá và đánh giá địa điểm du lịch Việt Nam.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Khám phá</h4>
+                <ul>
+                    <li><a href="index.html">Trang chủ</a></li>
+                    <li><a href="places.html">Địa điểm</a></li>
+                    <li><a href="my-reviews.html">Đánh giá của tôi</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Hỗ trợ</h4>
+                <ul>
+                    <li><a href="#">Liên hệ</a></li>
+                    <li><a href="#">Điều khoản</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 TripGo. Được tạo  tại Việt Nam.</p>
+        </div>
+    </div>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+    <div class="modal-box">
+        <div id="modal-content"></div>
+    </div>
+</div>
+<div id="toast-container"></div>
+
+<script src="assets/js/api.js"></script>
+<script>
+    let currentPage = 1;
+    let currentSearch = '';
+    let searchTimer = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initNavbar();
+        initModal();
+
+        // Lấy search từ URL
+        const params = new URLSearchParams(window.location.search);
+        const q = params.get('search') || '';
+        if (q) {
+            document.getElementById('search-input').value = q;
+            currentSearch = q;
+        }
+        loadPlaces();
+
+        // Live search
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(() => {
+                currentSearch = e.target.value.trim();
+                currentPage = 1;
+                loadPlaces();
+            }, 400);
+        });
+
+        document.getElementById('sort-select').addEventListener('change', () => {
+            currentPage = 1;
+            loadPlaces();
+        });
+    });
+
+    async function loadPlaces() {
+        const grid = document.getElementById('places-grid');
+        grid.innerHTML = skeletonCards(8);
+
+        try {
+            const data = await API.getAllPlaces({ search: currentSearch, page: currentPage, limit: 8 });
+            
+            const info = document.getElementById('results-info');
+            if (currentSearch) {
+                info.innerHTML = `Tìm thấy <strong>${data.total}</strong> kết quả cho "<strong>${currentSearch}</strong>"`;
+            } else {
+                info.innerHTML = `Hiển thị <strong>${data.places?.length || 0}</strong> / <strong>${data.total}</strong> địa điểm`;
+            }
+
+            if (!data.places?.length) {
+                grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+                    <div class="icon">🔍</div>
+                    <h3>Không tìm thấy kết quả</h3>
+                    <p>Thử tìm kiếm với từ khóa khác</p>
+                </div>`;
+                document.getElementById('pagination').innerHTML = '';
+                return;
+            }
+
+            grid.innerHTML = data.places.map(renderPlaceCard).join('');
+            grid.querySelectorAll('.place-card').forEach(card => {
+                card.addEventListener('click', () => openModal(card.dataset.id));
+            });
+
+            renderPagination(data.page, data.totalPages);
+        } catch (err) {
+            grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+                <div class="icon">⚠️</div>
+                <h3>Lỗi tải dữ liệu</h3>
+                <p>Kiểm tra kết nối backend</p>
+            </div>`;
+        }
+    }
+
+    function renderPlaceCard(place) {
+        const rating = parseFloat(place.avg_rating).toFixed(1);
+        return `
+            <div class="place-card" data-id="${place.place_id}">
+                <div class="card-img-wrap">
+                    <img src="${place.image_url}" alt="${place.name}" loading="lazy"
+                         onerror="this.src='https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=600'">
+                    <div class="card-badge"><i class="fa-solid fa-location-dot"></i> ${place.location}</div>
+                    <button class="card-fav" onclick="event.stopPropagation()">
+                        <i class="fa-regular fa-heart"></i>
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="card-name">${place.name}</div>
+                    <div class="card-location"><i class="fa-solid fa-location-dot"></i> ${place.location}</div>
+                    <div class="card-meta">
+                        <div class="rating">
+                            <div class="stars">${renderStars(rating)}</div>
+                            <span class="rating-num">${rating}</span>
+                            <span class="rating-count">(${place.review_count} đánh giá)</span>
+                        </div>
+                        <span class="btn-detail">Xem →</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderPagination(page, totalPages) {
+        const pag = document.getElementById('pagination');
+        if (totalPages <= 1) { pag.innerHTML = ''; return; }
+
+        let html = '';
+        html += `<button class="page-btn" onclick="goPage(${page - 1})" ${page === 1 ? 'disabled' : ''}>
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>`;
+
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === 1 || i === totalPages || (i >= page - 1 && i <= page + 1)) {
+                html += `<button class="page-btn ${i === page ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
+            } else if (i === page - 2 || i === page + 2) {
+                html += `<span style="color:var(--gray-3);padding:0 4px">...</span>`;
+            }
+        }
+
+        html += `<button class="page-btn" onclick="goPage(${page + 1})" ${page === totalPages ? 'disabled' : ''}>
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>`;
+
+        pag.innerHTML = html;
+    }
+
+    function goPage(page) {
+        currentPage = page;
+        loadPlaces();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Modal functions (reuse from main.js)
+    let currentPlaceId = null;
+    let selectedRating = 0;
+
+    function initModal() {
+        const overlay = document.getElementById('modal-overlay');
+        overlay?.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+    }
+
+    async function openModal(placeId) {
+        currentPlaceId = placeId;
+        selectedRating = 0;
+        const overlay = document.getElementById('modal-overlay');
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+
+        const content = document.getElementById('modal-content');
+        content.innerHTML = `<div style="padding:60px;text-align:center">
+            <i class="fa-solid fa-spinner fa-spin" style="font-size:2rem;color:var(--primary)"></i>
+        </div>`;
+
+        try {
+            const [place, reviews] = await Promise.all([
+                API.getPlaceById(placeId),
+                API.getReviewsByPlace(placeId)
+            ]);
+            renderModalContent(place, reviews);
+        } catch {
+            content.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><h3>Lỗi tải dữ liệu</h3></div>`;
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('modal-overlay')?.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    function renderModalContent(place, reviews) {
+        const content = document.getElementById('modal-content');
+        const rating = parseFloat(place.avg_rating).toFixed(1);
+        const isLoggedIn = Auth.isLoggedIn();
+
+        const reviewsHtml = reviews.length
+            ? reviews.map(r => `
+                <div class="modal-review-item">
+                    <img src="${r.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(r.fullname)}&background=1a6ef5&color=fff`}"
+                         class="modal-review-avatar" alt="${r.fullname}"
+                         onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(r.fullname)}&background=1a6ef5&color=fff'">
+                    <div class="modal-review-body">
+                        <div class="modal-review-header">
+                            <span class="modal-review-name">${r.fullname}</span>
+                            <div style="display:flex;align-items:center;gap:8px">
+                                <div class="stars" style="font-size:.75rem">${renderStars(r.rating)}</div>
+                                <span class="modal-review-time">${timeAgo(r.created_at)}</span>
+                            </div>
+                        </div>
+                        <p class="modal-review-text">${r.comment}</p>
+                    </div>
+                </div>
+            `).join('')
+            : '<p style="color:var(--gray-3);font-size:.88rem;padding:12px 0">Chưa có đánh giá nào. Hãy là người đầu tiên!</p>';
+
+        const writeReviewHtml = isLoggedIn ? `
+            <div class="write-review">
+                <div class="write-review-title">Viết đánh giá của bạn</div>
+                <div class="star-select" id="star-select">
+                    ${[1,2,3,4,5].map(i => `<i class="fa-regular fa-star" data-star="${i}"></i>`).join('')}
+                </div>
+                <textarea class="review-textarea" id="review-comment" placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>
+                <button class="btn-submit-review" id="btn-submit-review">
+                    <i class="fa-solid fa-paper-plane"></i> Gửi đánh giá
+                </button>
+            </div>
+        ` : `
+            <div class="login-prompt">
+                <p>Đăng nhập để viết đánh giá</p>
+                <a href="auth.html"><i class="fa-solid fa-right-to-bracket"></i> Đăng nhập ngay</a>
+            </div>
+        `;
+
+        content.innerHTML = `
+            <div class="modal-hero">
+                <img src="${place.image_url}" alt="${place.name}"
+                     onerror="this.src='https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=800'">
+                <div class="modal-hero-overlay"></div>
+                <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-arrow-left"></i></button>
+            </div>
+            <div class="modal-body">
+                <h2 class="modal-place-name">${place.name}</h2>
+                <div class="modal-location"><i class="fa-solid fa-location-dot"></i> ${place.location}</div>
+                <div class="modal-rating">
+                    <div class="stars">${renderStars(rating)}</div>
+                    <span style="font-weight:700;font-size:1rem;color:var(--dark)">${rating}</span>
+                    <span style="color:var(--gray-3);font-size:.85rem">(${place.review_count} đánh giá)</span>
+                </div>
+                <p class="modal-desc">${place.description || 'Chưa có mô tả.'}</p>
+                <div class="modal-reviews-title">
+                    <i class="fa-regular fa-comment-dots" style="color:var(--primary)"></i>
+                    Đánh giá (${reviews.length})
+                </div>
+                <div class="modal-reviews-list">${reviewsHtml}</div>
+                ${writeReviewHtml}
+            </div>
+        `;
+
+        const starSelect = document.getElementById('star-select');
+        if (starSelect) {
+            const stars = starSelect.querySelectorAll('i');
+            stars.forEach(star => {
+                star.addEventListener('mouseenter', () => {
+                    const val = parseInt(star.dataset.star);
+                    stars.forEach((s, i) => s.className = `fa-${i < val ? 'solid' : 'regular'} fa-star`);
+                });
+                star.addEventListener('mouseleave', () => {
+                    stars.forEach((s, i) => s.className = `fa-${i < selectedRating ? 'solid' : 'regular'} fa-star${i < selectedRating ? ' active' : ''}`);
+                });
+                star.addEventListener('click', () => {
+                    selectedRating = parseInt(star.dataset.star);
+                    stars.forEach((s, i) => s.className = `fa-${i < selectedRating ? 'solid' : 'regular'} fa-star${i < selectedRating ? ' active' : ''}`);
+                });
+            });
+        }
+
+        document.getElementById('btn-submit-review')?.addEventListener('click', async () => {
+            const comment = document.getElementById('review-comment')?.value.trim();
+            if (!selectedRating) return showToast('Vui lòng chọn số sao', 'error');
+            if (!comment) return showToast('Vui lòng nhập nhận xét', 'error');
+
+            const btn = document.getElementById('btn-submit-review');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang gửi...';
+            btn.disabled = true;
+
+            const res = await API.addReview({ place_id: currentPlaceId, rating: selectedRating, comment });
+            if (res.message === 'Đánh giá thành công!') {
+                showToast('Đánh giá thành công! 🎉');
+                await openModal(currentPlaceId);
+            } else {
+                showToast(res.message || 'Có lỗi xảy ra', 'error');
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Gửi đánh giá';
+                btn.disabled = false;
+            }
+        });
+    }
+</script>
+</body>
+</html>

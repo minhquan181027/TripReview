@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đánh giá của tôi - TripGo</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .my-reviews-header {
+            background: linear-gradient(135deg, var(--dark) 0%, var(--dark-2) 100%);
+            padding: 110px 0 52px;
+            color: white;
+        }
+
+        .my-reviews-header .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .my-reviews-header .user-avatar {
+            width: 64px; height: 64px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(255,255,255,0.3);
+        }
+
+        .my-reviews-header .user-name {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+        }
+
+        .my-reviews-header .user-email {
+            color: rgba(255,255,255,0.55);
+            font-size: 0.88rem;
+            margin-top: 3px;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .stat-chip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: var(--radius-full);
+            padding: 8px 18px;
+            font-size: 0.85rem;
+        }
+
+        .stat-chip i { color: #f5a623; }
+
+        .my-review-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--gray-5);
+            overflow: hidden;
+            transition: var(--transition);
+            display: flex;
+            gap: 0;
+            animation: fadeUp 0.4s ease both;
+        }
+
+        .my-review-card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: transparent;
+        }
+
+        .my-review-img {
+            width: 160px;
+            flex-shrink: 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .my-review-img img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .my-review-card:hover .my-review-img img { transform: scale(1.05); }
+
+        .my-review-body {
+            flex: 1;
+            padding: 22px 24px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .my-review-place {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .my-review-place-name {
+            font-family: var(--font-display);
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--dark);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .my-review-place-name:hover { color: var(--primary); }
+
+        .my-review-place-loc {
+            font-size: 0.8rem;
+            color: var(--gray-3);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 3px;
+        }
+
+        .my-review-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-delete {
+            padding: 7px 14px;
+            border-radius: var(--radius-full);
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: #fff0f0;
+            color: #e74c3c;
+            border: 1px solid #ffd4d4;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-delete:hover { background: #e74c3c; color: white; border-color: #e74c3c; }
+
+        .my-review-rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .my-review-text {
+            font-size: 0.9rem;
+            color: var(--gray-2);
+            line-height: 1.65;
+            flex: 1;
+        }
+
+        .my-review-time {
+            font-size: 0.78rem;
+            color: var(--gray-3);
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .not-logged-in {
+            text-align: center;
+            padding: 100px 24px;
+        }
+
+        .not-logged-in .icon {
+            font-size: 4rem;
+            color: var(--gray-4);
+            margin-bottom: 20px;
+        }
+
+        .not-logged-in h2 {
+            font-size: 1.4rem;
+            color: var(--gray-2);
+            margin-bottom: 10px;
+        }
+
+        .not-logged-in p {
+            color: var(--gray-3);
+            margin-bottom: 24px;
+        }
+
+        .not-logged-in a {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 13px 30px;
+            background: var(--primary);
+            color: white;
+            border-radius: var(--radius-full);
+            font-weight: 700;
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+        .not-logged-in a:hover { background: var(--primary-dark); transform: translateY(-2px); }
+
+        .confirm-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(13,27,42,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+        .confirm-modal.open { opacity: 1; visibility: visible; }
+
+        .confirm-box {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            max-width: 380px;
+            width: 100%;
+            text-align: center;
+            transform: scale(0.9);
+            transition: var(--transition);
+            box-shadow: var(--shadow-lg);
+        }
+        .confirm-modal.open .confirm-box { transform: scale(1); }
+
+        .confirm-box .icon { font-size: 2.5rem; margin-bottom: 14px; }
+        .confirm-box h3 { font-size: 1.1rem; font-weight: 700; color: var(--dark); margin-bottom: 8px; }
+        .confirm-box p { font-size: 0.88rem; color: var(--gray-3); margin-bottom: 24px; }
+
+        .confirm-actions { display: flex; gap: 10px; justify-content: center; }
+
+        .btn-cancel {
+            padding: 11px 24px;
+            border-radius: var(--radius-full);
+            background: var(--gray-5);
+            color: var(--gray-2);
+            font-weight: 600;
+            font-size: 0.88rem;
+            transition: var(--transition);
+        }
+        .btn-cancel:hover { background: var(--gray-4); }
+
+        .btn-confirm-del {
+            padding: 11px 24px;
+            border-radius: var(--radius-full);
+            background: #e74c3c;
+            color: white;
+            font-weight: 600;
+            font-size: 0.88rem;
+            transition: var(--transition);
+        }
+        .btn-confirm-del:hover { background: #c0392b; }
+
+        @media (max-width: 600px) {
+            .my-review-img { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="container">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">
+                <div class="logo-icon"><i class="fa-solid fa-compass"></i></div>
+                Trip<span>Go</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html">Trang chủ</a></li>
+                <li><a href="places.html">Địa điểm</a></li>
+                <li><a href="community.html" class="active">Cộng đồng</a></li>
+                <li><a href="my-reviews.html">Đánh giá của tôi</a></li>
+            </ul>
+            <div class="nav-actions"></div>
+        </div>
+    </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="my-reviews-header" id="page-header" style="display:none">
+    <div class="container">
+        <div class="user-info">
+            <img src="" id="header-avatar" class="user-avatar" alt="">
+            <div>
+                <div class="user-name" id="header-name"></div>
+                <div class="user-email" id="header-email"></div>
+            </div>
+        </div>
+        <div class="stats-bar" id="stats-bar"></div>
+    </div>
+</div>
+
+<!-- MAIN -->
+<section class="section" style="background:var(--gray-5);padding-top:40px">
+    <div class="container">
+        <div id="page-content">
+            <!-- Rendered by JS -->
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="container">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <div class="logo">
+                    <div class="logo-icon"><i class="fa-solid fa-compass"></i></div>
+                    TripGo
+                </div>
+                <p>Nền tảng khám phá và đánh giá địa điểm du lịch Việt Nam.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Khám phá</h4>
+                <ul>
+                    <li><a href="index.html">Trang chủ</a></li>
+                    <li><a href="places.html">Địa điểm</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Hỗ trợ</h4>
+                <ul><li><a href="#">Liên hệ</a></li></ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 TripGo. Được tạo với ❤️ tại Việt Nam.</p>
+        </div>
+    </div>
+</footer>
+
+<!-- Confirm Delete Modal -->
+<div class="confirm-modal" id="confirm-modal">
+    <div class="confirm-box">
+        <div class="icon">🗑️</div>
+        <h3>Xoá đánh giá?</h3>
+        <p>Hành động này không thể hoàn tác. Đánh giá của bạn sẽ bị xoá vĩnh viễn.</p>
+        <div class="confirm-actions">
+            <button class="btn-cancel" onclick="closeConfirm()">Huỷ bỏ</button>
+            <button class="btn-confirm-del" id="btn-confirm-del">Xoá ngay</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="assets/js/api.js"></script>
+<script>
+    let reviewToDelete = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initNavbar();
+
+        if (!Auth.isLoggedIn()) {
+            document.getElementById('page-content').innerHTML = `
+                <div class="not-logged-in">
+                    <div class="icon"><i class="fa-regular fa-user"></i></div>
+                    <h2>Bạn chưa đăng nhập</h2>
+                    <p>Đăng nhập để xem và quản lý đánh giá của bạn</p>
+                    <a href="auth.html"><i class="fa-solid fa-right-to-bracket"></i> Đăng nhập ngay</a>
+                </div>
+            `;
+            return;
+        }
+
+        const user = Auth.getUser();
+        document.getElementById('page-header').style.display = 'block';
+        document.getElementById('header-avatar').src = user.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullname)}&background=1a6ef5&color=fff`;
+        document.getElementById('header-name').textContent = user.fullname;
+        document.getElementById('header-email').textContent = user.email;
+
+        loadMyReviews();
+    });
+
+    async function loadMyReviews() {
+        const content = document.getElementById('page-content');
+        content.innerHTML = `<div style="display:flex;flex-direction:column;gap:16px">${
+            Array(3).fill(`<div class="skeleton-card" style="height:140px"></div>`).join('')
+        }</div>`;
+
+        try {
+            const reviews = await API.getMyReviews();
+
+            // Update stats
+            const avgRating = reviews.length
+                ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
+                : 0;
+
+            document.getElementById('stats-bar').innerHTML = `
+                <div class="stat-chip"><i class="fa-regular fa-star"></i> ${reviews.length} đánh giá</div>
+                <div class="stat-chip"><i class="fa-solid fa-star"></i> Trung bình ${avgRating}/5</div>
+            `;
+
+            if (!reviews.length) {
+                content.innerHTML = `
+                    <div class="empty-state" style="padding:80px 24px">
+                        <div class="icon">✍️</div>
+                        <h3>Chưa có đánh giá nào</h3>
+                        <p>Hãy khám phá địa điểm và chia sẻ trải nghiệm của bạn!</p>
+                        <a href="places.html" style="display:inline-flex;align-items:center;gap:8px;margin-top:20px;padding:12px 28px;background:var(--primary);color:white;border-radius:100px;font-weight:600;font-size:.9rem">
+                            <i class="fa-solid fa-compass"></i> Khám phá địa điểm
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            content.innerHTML = `
+                <div class="section-header" style="margin-bottom:24px">
+                    <div>
+                        <h2 class="section-title">Đánh giá của <span>tôi</span></h2>
+                        <p class="section-subtitle">Quản lý tất cả đánh giá bạn đã viết</p>
+                    </div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:16px" id="reviews-list">
+                    ${reviews.map(renderMyReviewCard).join('')}
+                </div>
+            `;
+
+        } catch (err) {
+            content.innerHTML = `<div class="empty-state">
+                <div class="icon">⚠️</div>
+                <h3>Lỗi tải dữ liệu</h3>
+                <p>Kiểm tra kết nối backend</p>
+            </div>`;
+        }
+    }
+
+    function renderMyReviewCard(review) {
+        const rating = parseFloat(review.rating);
+        return `
+            <div class="my-review-card" id="review-${review.review_id}">
+                <div class="my-review-img">
+                    <img src="${review.place_image}" alt="${review.place_name}"
+                         onerror="this.src='https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=400'">
+                </div>
+                <div class="my-review-body">
+                    <div class="my-review-place">
+                        <div>
+                            <div class="my-review-place-name" onclick="window.location.href='places.html'">
+                                ${review.place_name}
+                            </div>
+                            <div class="my-review-place-loc">
+                                <i class="fa-solid fa-location-dot" style="color:var(--secondary)"></i>
+                                ${review.location}
+                            </div>
+                        </div>
+                        <div class="my-review-actions">
+                            <button class="btn-delete" onclick="confirmDelete(${review.review_id})">
+                                <i class="fa-regular fa-trash-can"></i> Xoá
+                            </button>
+                        </div>
+                    </div>
+                    <div class="my-review-rating">
+                        <div class="stars">${renderStars(rating)}</div>
+                        <span style="font-weight:700;font-size:.9rem;color:var(--dark)">${rating}/5</span>
+                    </div>
+                    <p class="my-review-text">${review.comment}</p>
+                    <div class="my-review-time">
+                        <i class="fa-regular fa-clock"></i> ${timeAgo(review.created_at)}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function confirmDelete(id) {
+        reviewToDelete = id;
+        document.getElementById('confirm-modal').classList.add('open');
+        document.getElementById('btn-confirm-del').onclick = () => deleteReview(id);
+    }
+
+    function closeConfirm() {
+        document.getElementById('confirm-modal').classList.remove('open');
+        reviewToDelete = null;
+    }
+
+    async function deleteReview(id) {
+        const btn = document.getElementById('btn-confirm-del');
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang xoá...';
+        btn.disabled = true;
+
+        try {
+            const res = await API.deleteReview(id);
+            if (res.message === 'Đã xoá đánh giá') {
+                closeConfirm();
+                showToast('Đã xoá đánh giá thành công');
+                // Remove card with animation
+                const card = document.getElementById(`review-${id}`);
+                if (card) {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateX(-20px)';
+                    card.style.transition = 'all 0.3s ease';
+                    setTimeout(() => {
+                        card.remove();
+                        // Check if empty
+                        const list = document.getElementById('reviews-list');
+                        if (list && list.children.length === 0) loadMyReviews();
+                    }, 300);
+                }
+            } else {
+                showToast(res.message || 'Có lỗi xảy ra', 'error');
+                closeConfirm();
+            }
+        } catch {
+            showToast('Lỗi kết nối server', 'error');
+            closeConfirm();
+        }
+    }
+
+    document.getElementById('confirm-modal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('confirm-modal')) closeConfirm();
+    });
+</script>
+</body>
+</html>
