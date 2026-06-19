@@ -5,85 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Địa điểm - TripGo</title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/places.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <style>
-        .places-page-header {
-            background: linear-gradient(135deg, var(--dark) 0%, var(--dark-2) 100%);
-            padding: 110px 0 52px;
-            color: white;
-        }
-
-        .places-page-header h1 {
-            font-size: clamp(1.7rem, 3vw, 2.4rem);
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            margin-bottom: 8px;
-        }
-
-        .places-page-header p {
-            color: rgba(255,255,255,0.6);
-            font-size: 0.93rem;
-        }
-
-        .places-toolbar {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            margin-bottom: 32px;
-            flex-wrap: wrap;
-        }
-
-        .search-bar-inline {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: white;
-            border: 1.5px solid var(--gray-4);
-            border-radius: var(--radius-full);
-            padding: 10px 20px;
-            min-width: 240px;
-        }
-
-        .search-bar-inline i { color: var(--gray-3); }
-
-        .search-bar-inline input {
-            flex: 1;
-            font-size: 0.9rem;
-            color: var(--dark);
-            background: transparent;
-        }
-
-        .search-bar-inline input::placeholder { color: var(--gray-3); }
-
-        .sort-select {
-            padding: 11px 18px;
-            border: 1.5px solid var(--gray-4);
-            border-radius: var(--radius-full);
-            font-size: 0.88rem;
-            color: var(--dark);
-            background: white;
-            cursor: pointer;
-            appearance: none;
-            padding-right: 36px;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238fa3b3' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 14px center;
-            min-width: 170px;
-        }
-
-        .results-info {
-            font-size: 0.85rem;
-            color: var(--gray-3);
-            margin-bottom: 24px;
-        }
-
-        .results-info strong { color: var(--dark); font-weight: 600; }
-    </style>
+    <!-- Leaflet.js bản đồ -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
 </head>
 <body>
 
-<!-- NAVBAR -->
+<!-- ══════════════ NAVBAR ══════════════ -->
 <nav class="navbar">
     <div class="container">
         <div class="nav-inner">
@@ -92,9 +23,9 @@
                 Trip<span>Go</span>
             </a>
             <ul class="nav-links">
-               <li><a href="index.html">Trang chủ</a></li>
-                <li><a href="places.html">Địa điểm</a></li>
-                <li><a href="community.html" class="active">Cộng đồng</a></li>
+                <li><a href="index.html">Trang chủ</a></li>
+                <li><a href="places.html" class="active">Địa điểm</a></li>
+                <li><a href="community.html">Cộng đồng</a></li>
                 <li><a href="my-reviews.html">Đánh giá của tôi</a></li>
             </ul>
             <div class="nav-actions"></div>
@@ -102,7 +33,7 @@
     </div>
 </nav>
 
-<!-- PAGE HEADER -->
+<!-- ══════════════ PAGE HEADER ══════════════ -->
 <div class="places-page-header">
     <div class="container">
         <h1><i class="fa-solid fa-compass" style="color:var(--primary);margin-right:12px"></i>Địa điểm du lịch</h1>
@@ -110,8 +41,8 @@
     </div>
 </div>
 
-<!-- MAIN -->
-<section class="section" style="background:var(--gray-5);padding-top:40px">
+<!-- ══════════════ MAIN ══════════════ -->
+<section class="section" style="background:var(--gray-5);padding-top:36px">
     <div class="container">
 
         <!-- Toolbar -->
@@ -122,24 +53,63 @@
             </div>
             <select class="sort-select" id="sort-select">
                 <option value="rating">⭐ Đánh giá cao nhất</option>
-                <option value="newest">🕐 Mới nhất</option>
                 <option value="reviews">💬 Nhiều đánh giá nhất</option>
             </select>
         </div>
 
-        <p class="results-info" id="results-info"></p>
-
-        <!-- Grid -->
-        <div class="places-grid" id="places-grid">
-            <!-- Rendered by JS -->
+        <!-- View Tabs -->
+        <div class="view-tabs">
+            <button class="view-tab active" id="tab-list" onclick="switchView('list')">
+                <i class="fa-solid fa-grip"></i> Danh sách
+            </button>
+            <button class="view-tab" id="tab-map" onclick="switchView('map')">
+                <i class="fa-solid fa-map-location-dot"></i> Bản đồ
+            </button>
         </div>
 
-        <!-- Pagination -->
-        <div class="pagination" id="pagination"></div>
+        <p class="results-info" id="results-info"></p>
+
+        <!-- ══ LIST VIEW ══ -->
+        <div id="list-view">
+            <div class="places-grid" id="places-grid"></div>
+            <div class="pagination" id="pagination"></div>
+        </div>
+
+        <!-- ══ MAP VIEW ══ -->
+        <div id="map-view">
+            <div class="no-coords-notice" id="no-coords-notice" style="display:none">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span id="no-coords-text"></span>
+            </div>
+            <div class="map-wrapper">
+                <!-- Sidebar danh sách -->
+                <div class="map-sidebar" id="map-sidebar"></div>
+                <!-- Bản đồ Leaflet -->
+                <div id="map-container"></div>
+            </div>
+            <div class="map-legend">
+                <div class="legend-item">
+                    <div class="legend-dot" style="background:#1a6ef5"></div>
+                    Địa điểm có trên bản đồ
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background:#ff6b35"></div>
+                    Đang chọn
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background:#c5d4df"></div>
+                    Chưa có tọa độ
+                </div>
+                <span style="color:var(--gray-3);font-size:.78rem;margin-left:auto">
+                    <i class="fa-brands fa-openstreetmap"></i> OpenStreetMap
+                </span>
+            </div>
+        </div>
+
     </div>
 </section>
 
-<!-- FOOTER -->
+<!-- ══════════════ FOOTER ══════════════ -->
 <footer>
     <div class="container">
         <div class="footer-inner">
@@ -155,6 +125,7 @@
                 <ul>
                     <li><a href="index.html">Trang chủ</a></li>
                     <li><a href="places.html">Địa điểm</a></li>
+                    <li><a href="community.html">Cộng đồng</a></li>
                     <li><a href="my-reviews.html">Đánh giá của tôi</a></li>
                 </ul>
             </div>
@@ -163,16 +134,17 @@
                 <ul>
                     <li><a href="#">Liên hệ</a></li>
                     <li><a href="#">Điều khoản</a></li>
+                    <li><a href="#">Bảo mật</a></li>
                 </ul>
             </div>
         </div>
         <div class="footer-bottom">
-            <p>© 2025 TripGo. Được tạo  tại Việt Nam.</p>
+            <p>© 2025 TripGo. Được tạo với ❤️ tại Việt Nam.</p>
         </div>
     </div>
 </footer>
 
-<!-- MODAL -->
+<!-- ══════════════ MODAL ══════════════ -->
 <div class="modal-overlay" id="modal-overlay">
     <div class="modal-box">
         <div id="modal-content"></div>
@@ -180,282 +152,704 @@
 </div>
 <div id="toast-container"></div>
 
+<!-- ══════════════ SCRIPTS ══════════════ -->
 <script src="assets/js/api.js"></script>
 <script>
-    let currentPage = 1;
-    let currentSearch = '';
-    let searchTimer = null;
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let currentPage    = 1;
+let currentSearch  = '';
+let currentView    = 'list';
+let searchTimer    = null;
+let leafletMap     = null;
+let markers        = {};       // place_id → L.marker
+let activeMarker   = null;     // place_id hiện đang active
+let allMapPlaces   = [];       // cache dữ liệu cho map view
+let mapInitialized = false;
+let currentPlaceId = null;
+let selectedRating = 0;
 
-    document.addEventListener('DOMContentLoaded', () => {
-        initNavbar();
-        initModal();
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+    initNavbar();
+    initModal();
 
-        // Lấy search từ URL
-        const params = new URLSearchParams(window.location.search);
-        const q = params.get('search') || '';
-        if (q) {
-            document.getElementById('search-input').value = q;
-            currentSearch = q;
-        }
-        loadPlaces();
+    // Lấy search từ URL
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get('search') || '';
+    if (q) { document.getElementById('search-input').value = q; currentSearch = q; }
 
-        // Live search
-        document.getElementById('search-input').addEventListener('input', (e) => {
-            clearTimeout(searchTimer);
-            searchTimer = setTimeout(() => {
-                currentSearch = e.target.value.trim();
-                currentPage = 1;
-                loadPlaces();
-            }, 400);
-        });
+    loadPlaces();
 
-        document.getElementById('sort-select').addEventListener('change', () => {
+    // Live search (debounce 400ms)
+    document.getElementById('search-input').addEventListener('input', e => {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => {
+            currentSearch = e.target.value.trim();
             currentPage = 1;
-            loadPlaces();
-        });
+            if (currentView === 'list') loadPlaces();
+            else loadMapPlaces();
+        }, 400);
     });
 
-    async function loadPlaces() {
-        const grid = document.getElementById('places-grid');
-        grid.innerHTML = skeletonCards(8);
+    document.getElementById('sort-select').addEventListener('change', () => {
+        currentPage = 1;
+        if (currentView === 'list') loadPlaces();
+    });
+});
 
-        try {
-            const data = await API.getAllPlaces({ search: currentSearch, page: currentPage, limit: 8 });
-            
-            const info = document.getElementById('results-info');
-            if (currentSearch) {
-                info.innerHTML = `Tìm thấy <strong>${data.total}</strong> kết quả cho "<strong>${currentSearch}</strong>"`;
-            } else {
-                info.innerHTML = `Hiển thị <strong>${data.places?.length || 0}</strong> / <strong>${data.total}</strong> địa điểm`;
-            }
+// ═══════════════════════════════════════════════
+// VIEW SWITCH
+// ═══════════════════════════════════════════════
+function switchView(view) {
+    currentView = view;
+    document.getElementById('list-view').style.display = view === 'list' ? 'block' : 'none';
+    document.getElementById('map-view').style.display  = view === 'map'  ? 'block' : 'none';
+    document.getElementById('tab-list').classList.toggle('active', view === 'list');
+    document.getElementById('tab-map').classList.toggle('active', view === 'map');
 
-            if (!data.places?.length) {
-                grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
-                    <div class="icon">🔍</div>
-                    <h3>Không tìm thấy kết quả</h3>
-                    <p>Thử tìm kiếm với từ khóa khác</p>
-                </div>`;
-                document.getElementById('pagination').innerHTML = '';
-                return;
-            }
-
-            grid.innerHTML = data.places.map(renderPlaceCard).join('');
-            grid.querySelectorAll('.place-card').forEach(card => {
-                card.addEventListener('click', () => openModal(card.dataset.id));
-            });
-
-            renderPagination(data.page, data.totalPages);
-        } catch (err) {
-            grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
-                <div class="icon">⚠️</div>
-                <h3>Lỗi tải dữ liệu</h3>
-                <p>Kiểm tra kết nối backend</p>
-            </div>`;
+    if (view === 'map') {
+        // Init map lần đầu
+        if (!mapInitialized) {
+            initLeafletMap();
+            mapInitialized = true;
         }
+        loadMapPlaces();
+        // Leaflet cần invalidate sau khi container hiện ra
+        setTimeout(() => leafletMap && leafletMap.invalidateSize(), 150);
     }
+}
 
-    function renderPlaceCard(place) {
-        const rating = parseFloat(place.avg_rating).toFixed(1);
-        return `
-            <div class="place-card" data-id="${place.place_id}">
-                <div class="card-img-wrap">
-                    <img src="${place.image_url}" alt="${place.name}" loading="lazy"
-                         onerror="this.src='https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=600'">
-                    <div class="card-badge"><i class="fa-solid fa-location-dot"></i> ${place.location}</div>
-                    <button class="card-fav" onclick="event.stopPropagation()">
-                        <i class="fa-regular fa-heart"></i>
-                    </button>
-                </div>
-                <div class="card-body">
-                    <div class="card-name">${place.name}</div>
-                    <div class="card-location"><i class="fa-solid fa-location-dot"></i> ${place.location}</div>
-                    <div class="card-meta">
-                        <div class="rating">
-                            <div class="stars">${renderStars(rating)}</div>
-                            <span class="rating-num">${rating}</span>
-                            <span class="rating-count">(${place.review_count} đánh giá)</span>
-                        </div>
-                        <span class="btn-detail">Xem →</span>
-                    </div>
+// ═══════════════════════════════════════════════
+// LEAFLET MAP INIT
+// ═══════════════════════════════════════════════
+function initLeafletMap() {
+    leafletMap = L.map('map-container', {
+        center: [16.5, 107.5],   // Trung tâm Việt Nam
+        zoom: 6,
+        zoomControl: true,
+        attributionControl: true,
+    });
+
+    // Tile layer OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 19,
+    }).addTo(leafletMap);
+}
+
+// ═══════════════════════════════════════════════
+// CUSTOM MARKER ICON
+// ═══════════════════════════════════════════════
+function makeMarkerIcon(isActive = false) {
+    const color = isActive ? '#ff6b35' : '#1a6ef5';
+    const size  = isActive ? 38 : 32;
+    return L.divIcon({
+        className: '',
+        iconSize:   [size, size],
+        iconAnchor: [size/2, size],
+        popupAnchor:[0, -size],
+        html: `<div style="
+            width:${size}px; height:${size}px;
+            background:${color};
+            border:3px solid white;
+            border-radius:50% 50% 50% 0;
+            transform:rotate(-45deg);
+            box-shadow:0 4px 12px ${color}66;
+            display:flex; align-items:center; justify-content:center;
+            transition:all .25s;
+        ">
+            <i class="fa-solid fa-location-dot" style="
+                transform:rotate(45deg);
+                color:white;
+                font-size:${size === 38 ? 14 : 12}px;
+                margin-top:2px;
+            "></i>
+        </div>`,
+    });
+}
+
+// ═══════════════════════════════════════════════
+// LOAD MAP PLACES
+// ═══════════════════════════════════════════════
+async function loadMapPlaces() {
+    const sidebar = document.getElementById('map-sidebar');
+    sidebar.innerHTML = Array(5).fill(`
+        <div style="background:white;border-radius:14px;padding:14px;border:1px solid var(--gray-5)">
+            <div style="display:flex;gap:12px;align-items:center">
+                <div class="skeleton" style="width:52px;height:52px;border-radius:8px;flex-shrink:0"></div>
+                <div style="flex:1">
+                    <div class="skeleton skeleton-line" style="width:70%;margin-bottom:6px"></div>
+                    <div class="skeleton skeleton-line shorter"></div>
                 </div>
             </div>
-        `;
-    }
+        </div>`).join('');
 
-    function renderPagination(page, totalPages) {
-        const pag = document.getElementById('pagination');
-        if (totalPages <= 1) { pag.innerHTML = ''; return; }
+    try {
+        const data = await API.getPlacesForMap(currentSearch);
+        allMapPlaces = data;
 
-        let html = '';
-        html += `<button class="page-btn" onclick="goPage(${page - 1})" ${page === 1 ? 'disabled' : ''}>
-            <i class="fa-solid fa-chevron-left"></i>
-        </button>`;
+        // Xoá markers cũ
+        Object.values(markers).forEach(m => leafletMap.removeLayer(m));
+        markers = {};
+        activeMarker = null;
 
-        for (let i = 1; i <= totalPages; i++) {
-            if (i === 1 || i === totalPages || (i >= page - 1 && i <= page + 1)) {
-                html += `<button class="page-btn ${i === page ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
-            } else if (i === page - 2 || i === page + 2) {
-                html += `<span style="color:var(--gray-3);padding:0 4px">...</span>`;
-            }
+        const withCoords    = data.filter(p => p.latitude && p.longitude);
+        const withoutCoords = data.filter(p => !p.latitude || !p.longitude);
+
+        // Notice nếu có địa điểm thiếu tọa độ
+        const notice = document.getElementById('no-coords-notice');
+        if (withoutCoords.length) {
+            notice.style.display = 'flex';
+            document.getElementById('no-coords-text').textContent =
+                `${withoutCoords.length} địa điểm chưa có tọa độ và không hiển thị trên bản đồ. Chạy file add_coordinates.sql để thêm tọa độ.`;
+        } else {
+            notice.style.display = 'none';
         }
 
-        html += `<button class="page-btn" onclick="goPage(${page + 1})" ${page === totalPages ? 'disabled' : ''}>
-            <i class="fa-solid fa-chevron-right"></i>
-        </button>`;
+        // Cập nhật results info
+        const info = document.getElementById('results-info');
+        if (currentSearch)
+            info.innerHTML = `Tìm thấy <strong>${data.length}</strong> kết quả cho "<strong>${currentSearch}</strong>"`;
+        else
+            info.innerHTML = `Hiển thị <strong>${withCoords.length}</strong> địa điểm trên bản đồ`;
 
-        pag.innerHTML = html;
-    }
+        // ── Render sidebar ──
+        sidebar.innerHTML = '';
 
-    function goPage(page) {
-        currentPage = page;
-        loadPlaces();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    // Modal functions (reuse from main.js)
-    let currentPlaceId = null;
-    let selectedRating = 0;
-
-    function initModal() {
-        const overlay = document.getElementById('modal-overlay');
-        overlay?.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
-        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
-    }
-
-    async function openModal(placeId) {
-        currentPlaceId = placeId;
-        selectedRating = 0;
-        const overlay = document.getElementById('modal-overlay');
-        overlay.classList.add('open');
-        document.body.style.overflow = 'hidden';
-
-        const content = document.getElementById('modal-content');
-        content.innerHTML = `<div style="padding:60px;text-align:center">
-            <i class="fa-solid fa-spinner fa-spin" style="font-size:2rem;color:var(--primary)"></i>
-        </div>`;
-
-        try {
-            const [place, reviews] = await Promise.all([
-                API.getPlaceById(placeId),
-                API.getReviewsByPlace(placeId)
-            ]);
-            renderModalContent(place, reviews);
-        } catch {
-            content.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><h3>Lỗi tải dữ liệu</h3></div>`;
-        }
-    }
-
-    function closeModal() {
-        document.getElementById('modal-overlay')?.classList.remove('open');
-        document.body.style.overflow = '';
-    }
-
-    function renderModalContent(place, reviews) {
-        const content = document.getElementById('modal-content');
-        const rating = parseFloat(place.avg_rating).toFixed(1);
-        const isLoggedIn = Auth.isLoggedIn();
-
-        const reviewsHtml = reviews.length
-            ? reviews.map(r => `
-                <div class="modal-review-item">
-                    <img src="${r.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(r.fullname)}&background=1a6ef5&color=fff`}"
-                         class="modal-review-avatar" alt="${r.fullname}"
-                         onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(r.fullname)}&background=1a6ef5&color=fff'">
-                    <div class="modal-review-body">
-                        <div class="modal-review-header">
-                            <span class="modal-review-name">${r.fullname}</span>
-                            <div style="display:flex;align-items:center;gap:8px">
-                                <div class="stars" style="font-size:.75rem">${renderStars(r.rating)}</div>
-                                <span class="modal-review-time">${timeAgo(r.created_at)}</span>
-                            </div>
-                        </div>
-                        <p class="modal-review-text">${r.comment}</p>
+        // Hiện địa điểm có tọa độ trước
+        [...withCoords, ...withoutCoords].forEach(place => {
+            const rating = parseFloat(place.avg_rating).toFixed(1);
+            const hasCoords = place.latitude && place.longitude;
+            const item = document.createElement('div');
+            item.className = `map-place-item${hasCoords ? '' : ' no-coords'}`;
+            item.id = `mpi-${place.place_id}`;
+            item.innerHTML = `
+                <img class="mpi-img" src="${place.image_url || ''}"
+                     onerror="this.src='https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=200'"
+                     alt="${place.name}">
+                <div class="mpi-info">
+                    <div class="mpi-name">${place.name}</div>
+                    <div class="mpi-loc">
+                        <i class="fa-solid fa-location-dot"></i>${place.location}
                     </div>
-                </div>
-            `).join('')
-            : '<p style="color:var(--gray-3);font-size:.88rem;padding:12px 0">Chưa có đánh giá nào. Hãy là người đầu tiên!</p>';
+                    <div class="mpi-rating">
+                        <i class="fa-solid fa-star"></i>
+                        ${rating} <span style="color:var(--gray-3);font-weight:400">(${place.review_count})</span>
+                    </div>
+                    ${!hasCoords ? '<div class="mpi-no-coords"><i class="fa-solid fa-triangle-exclamation"></i> Chưa có tọa độ</div>' : ''}
+                </div>`;
 
-        const writeReviewHtml = isLoggedIn ? `
-            <div class="write-review">
-                <div class="write-review-title">Viết đánh giá của bạn</div>
-                <div class="star-select" id="star-select">
-                    ${[1,2,3,4,5].map(i => `<i class="fa-regular fa-star" data-star="${i}"></i>`).join('')}
-                </div>
-                <textarea class="review-textarea" id="review-comment" placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>
-                <button class="btn-submit-review" id="btn-submit-review">
-                    <i class="fa-solid fa-paper-plane"></i> Gửi đánh giá
+            if (hasCoords) {
+                item.addEventListener('click', () => focusPlace(place));
+            }
+            sidebar.appendChild(item);
+        });
+
+        // ── Đặt markers ──
+        withCoords.forEach(place => {
+            const rating = parseFloat(place.avg_rating).toFixed(1);
+            const marker = L.marker([place.latitude, place.longitude], {
+                icon: makeMarkerIcon(false),
+            });
+
+            // Popup nội dung
+            const popupHTML = `
+                <div class="map-popup">
+                    <img class="map-popup-img"
+                         src="${place.image_url || ''}"
+                         onerror="this.src='https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=400'"
+                         alt="${place.name}">
+                    <div class="map-popup-body">
+                        <div class="map-popup-name">${place.name}</div>
+                        <div class="map-popup-loc">
+                            <i class="fa-solid fa-location-dot" style="color:#ff6b35;font-size:.72rem"></i>
+                            ${place.location}
+                        </div>
+                        <div class="map-popup-rating">
+                            <div class="map-popup-stars">${renderStars(rating)}</div>
+                            <span class="map-popup-score">${rating}</span>
+                            <span class="map-popup-count">(${place.review_count} đánh giá)</span>
+                        </div>
+                        <button class="map-popup-btn" onclick="openModal(${place.place_id})">
+                            <i class="fa-solid fa-circle-info"></i> Xem chi tiết & đánh giá
+                        </button>
+                    </div>
+                </div>`;
+
+            marker.bindPopup(popupHTML, {
+                maxWidth: 260, minWidth: 240,
+                closeButton: false,
+                className: 'custom-popup',
+            });
+
+            marker.on('click', () => focusPlace(place));
+            marker.addTo(leafletMap);
+            markers[place.place_id] = marker;
+        });
+
+        // Fit bounds nếu có markers
+        if (withCoords.length) {
+            const group = L.featureGroup(Object.values(markers));
+            leafletMap.fitBounds(group.getBounds().pad(0.15));
+        }
+
+    } catch (err) {
+        sidebar.innerHTML = `<div class="empty-state">
+            <div class="icon">⚠️</div>
+            <h3>Không thể tải dữ liệu</h3>
+            <p>Kiểm tra kết nối backend</p>
+        </div>`;
+    }
+}
+
+// ═══════════════════════════════════════════════
+// FOCUS PLACE (click sidebar hoặc marker)
+// ═══════════════════════════════════════════════
+function focusPlace(place) {
+    if (!place.latitude || !place.longitude) return;
+
+    // Reset marker cũ
+    if (activeMarker && markers[activeMarker]) {
+        markers[activeMarker].setIcon(makeMarkerIcon(false));
+    }
+
+    // Active marker mới
+    activeMarker = place.place_id;
+    const marker = markers[place.place_id];
+    if (marker) {
+        marker.setIcon(makeMarkerIcon(true));
+        marker.openPopup();
+    }
+
+    // Bay đến vị trí
+    leafletMap.flyTo([place.latitude, place.longitude], 13, {
+        animate: true,
+        duration: 1.2,
+    });
+
+    // Active sidebar item
+    document.querySelectorAll('.map-place-item').forEach(el => el.classList.remove('active'));
+    const sidebarItem = document.getElementById(`mpi-${place.place_id}`);
+    if (sidebarItem) {
+        sidebarItem.classList.add('active');
+        sidebarItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+}
+
+// ═══════════════════════════════════════════════
+// LIST VIEW - LOAD PLACES
+// ═══════════════════════════════════════════════
+async function loadPlaces() {
+    const grid = document.getElementById('places-grid');
+    grid.innerHTML = skeletonCards(8);
+
+    try {
+        const data = await API.getAllPlaces({ search: currentSearch, page: currentPage, limit: 8 });
+
+        const info = document.getElementById('results-info');
+        if (currentSearch)
+            info.innerHTML = `Tìm thấy <strong>${data.total}</strong> kết quả cho "<strong>${currentSearch}</strong>"`;
+        else
+            info.innerHTML = `Hiển thị <strong>${data.places?.length || 0}</strong> / <strong>${data.total}</strong> địa điểm`;
+
+        if (!data.places?.length) {
+            grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+                <div class="icon">🔍</div>
+                <h3>Không tìm thấy kết quả</h3>
+                <p>Thử tìm kiếm với từ khóa khác</p>
+            </div>`;
+            document.getElementById('pagination').innerHTML = '';
+            return;
+        }
+
+        grid.innerHTML = data.places.map(renderPlaceCard).join('');
+        grid.querySelectorAll('.place-card').forEach(card => {
+            card.addEventListener('click', () => openModal(card.dataset.id));
+        });
+
+        renderPagination(data.page, data.totalPages);
+    } catch {
+        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+            <div class="icon">⚠️</div><h3>Lỗi tải dữ liệu</h3><p>Kiểm tra kết nối backend</p>
+        </div>`;
+    }
+}
+
+function renderPlaceCard(place) {
+    const rating = parseFloat(place.avg_rating).toFixed(1);
+    return `
+        <div class="place-card" data-id="${place.place_id}">
+            <div class="card-img-wrap">
+                <img src="${place.image_url}" alt="${place.name}" loading="lazy"
+                     onerror="this.src='https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=600'">
+                <div class="card-badge"><i class="fa-solid fa-location-dot"></i> ${place.location}</div>
+                <button class="card-fav" onclick="event.stopPropagation()">
+                    <i class="fa-regular fa-heart"></i>
                 </button>
             </div>
-        ` : `
-            <div class="login-prompt">
-                <p>Đăng nhập để viết đánh giá</p>
-                <a href="auth.html"><i class="fa-solid fa-right-to-bracket"></i> Đăng nhập ngay</a>
-            </div>
-        `;
-
-        content.innerHTML = `
-            <div class="modal-hero">
-                <img src="${place.image_url}" alt="${place.name}"
-                     onerror="this.src='https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=800'">
-                <div class="modal-hero-overlay"></div>
-                <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-arrow-left"></i></button>
-            </div>
-            <div class="modal-body">
-                <h2 class="modal-place-name">${place.name}</h2>
-                <div class="modal-location"><i class="fa-solid fa-location-dot"></i> ${place.location}</div>
-                <div class="modal-rating">
-                    <div class="stars">${renderStars(rating)}</div>
-                    <span style="font-weight:700;font-size:1rem;color:var(--dark)">${rating}</span>
-                    <span style="color:var(--gray-3);font-size:.85rem">(${place.review_count} đánh giá)</span>
+            <div class="card-body">
+                <div class="card-name">${place.name}</div>
+                <div class="card-location"><i class="fa-solid fa-location-dot"></i> ${place.location}</div>
+                <div class="card-meta">
+                    <div class="rating">
+                        <div class="stars">${renderStars(rating)}</div>
+                        <span class="rating-num">${rating}</span>
+                        <span class="rating-count">(${place.review_count} đánh giá)</span>
+                    </div>
+                    <span class="btn-detail">Xem →</span>
                 </div>
-                <p class="modal-desc">${place.description || 'Chưa có mô tả.'}</p>
-                <div class="modal-reviews-title">
-                    <i class="fa-regular fa-comment-dots" style="color:var(--primary)"></i>
-                    Đánh giá (${reviews.length})
-                </div>
-                <div class="modal-reviews-list">${reviewsHtml}</div>
-                ${writeReviewHtml}
             </div>
-        `;
+        </div>`;
+}
 
-        const starSelect = document.getElementById('star-select');
-        if (starSelect) {
-            const stars = starSelect.querySelectorAll('i');
-            stars.forEach(star => {
-                star.addEventListener('mouseenter', () => {
-                    const val = parseInt(star.dataset.star);
-                    stars.forEach((s, i) => s.className = `fa-${i < val ? 'solid' : 'regular'} fa-star`);
-                });
-                star.addEventListener('mouseleave', () => {
-                    stars.forEach((s, i) => s.className = `fa-${i < selectedRating ? 'solid' : 'regular'} fa-star${i < selectedRating ? ' active' : ''}`);
-                });
-                star.addEventListener('click', () => {
-                    selectedRating = parseInt(star.dataset.star);
-                    stars.forEach((s, i) => s.className = `fa-${i < selectedRating ? 'solid' : 'regular'} fa-star${i < selectedRating ? ' active' : ''}`);
-                });
+// ═══════════════════════════════════════════════
+// PAGINATION
+// ═══════════════════════════════════════════════
+function renderPagination(page, totalPages) {
+    const pag = document.getElementById('pagination');
+    if (totalPages <= 1) { pag.innerHTML = ''; return; }
+    let html = `<button class="page-btn" onclick="goPage(${page-1})" ${page===1?'disabled':''}>
+        <i class="fa-solid fa-chevron-left"></i></button>`;
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= page-1 && i <= page+1))
+            html += `<button class="page-btn ${i===page?'active':''}" onclick="goPage(${i})">${i}</button>`;
+        else if (i === page-2 || i === page+2)
+            html += `<span style="color:var(--gray-3);padding:0 4px">...</span>`;
+    }
+    html += `<button class="page-btn" onclick="goPage(${page+1})" ${page===totalPages?'disabled':''}>
+        <i class="fa-solid fa-chevron-right"></i></button>`;
+    pag.innerHTML = html;
+}
+
+function goPage(page) {
+    currentPage = page;
+    loadPlaces();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ═══════════════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════════════
+function initModal() {
+    const overlay = document.getElementById('modal-overlay');
+    overlay?.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+}
+
+async function openModal(placeId) {
+    currentPlaceId = placeId;
+    selectedRating = 0;
+    const overlay = document.getElementById('modal-overlay');
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    const content = document.getElementById('modal-content');
+    content.innerHTML = `<div style="padding:60px;text-align:center">
+        <i class="fa-solid fa-spinner fa-spin" style="font-size:2rem;color:var(--primary)"></i>
+    </div>`;
+
+    try {
+        const [place, reviews] = await Promise.all([
+            API.getPlaceById(placeId),
+            API.getReviewsByPlace(placeId)
+        ]);
+        renderModalContent(place, reviews);
+    } catch {
+        content.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><h3>Lỗi tải dữ liệu</h3></div>`;
+    }
+}
+
+function closeModal() {
+    document.getElementById('modal-overlay')?.classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+function renderModalContent(place, reviews) {
+    const content  = document.getElementById('modal-content');
+    const rating   = parseFloat(place.avg_rating).toFixed(1);
+    const isLoggedIn = Auth.isLoggedIn();
+    const user     = Auth.getUser();
+
+    const reviewsHtml = reviews.length
+        ? reviews.map(r => `
+            <div class="modal-review-item">
+                <img src="${r.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(r.fullname)}&background=1a6ef5&color=fff`}"
+                     class="modal-review-avatar" alt="${r.fullname}"
+                     onerror="this.src='https://ui-avatars.com/api/?name=U&background=1a6ef5&color=fff'">
+                <div class="modal-review-body">
+                    <div class="modal-review-header">
+                        <span class="modal-review-name">${r.fullname}</span>
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <div class="stars" style="font-size:.75rem">${renderStars(r.rating)}</div>
+                            <span class="modal-review-time">${timeAgo(r.created_at)}</span>
+                        </div>
+                    </div>
+                    <p class="modal-review-text">${r.comment}</p>
+                </div>
+            </div>`).join('')
+        : '<p style="color:var(--gray-3);font-size:.88rem;padding:12px 0">Chưa có đánh giá nào. Hãy là người đầu tiên!</p>';
+
+    // Nút "Xem trên bản đồ" nếu có tọa độ
+    const mapBtn = place.latitude && place.longitude
+        ? `<button onclick="viewOnMap(${place.place_id}, ${place.latitude}, ${place.longitude})"
+                style="display:inline-flex;align-items:center;gap:7px;padding:8px 18px;
+                       background:var(--primary-light);color:var(--primary);border-radius:100px;
+                       font-size:.83rem;font-weight:600;border:none;cursor:pointer;margin-left:10px;
+                       transition:all .2s" 
+                onmouseover="this.style.background='var(--primary)';this.style.color='white'"
+                onmouseout="this.style.background='var(--primary-light)';this.style.color='var(--primary)'">
+                <i class="fa-solid fa-map-location-dot"></i> Xem trên bản đồ
+           </button>`
+        : '';
+
+    const writeHtml = isLoggedIn ? `
+        <div class="write-review">
+            <div class="write-review-title">Viết đánh giá của bạn</div>
+            <div class="star-select" id="star-select">
+                ${[1,2,3,4,5].map(i=>`<i class="fa-regular fa-star" data-star="${i}"></i>`).join('')}
+            </div>
+            <textarea class="review-textarea" id="review-comment"
+                placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>
+            <button class="btn-submit-review" id="btn-submit-review">
+                <i class="fa-solid fa-paper-plane"></i> Gửi đánh giá
+            </button>
+        </div>` : `
+        <div class="login-prompt">
+            <p>Đăng nhập để viết đánh giá</p>
+            <a href="auth.html"><i class="fa-solid fa-right-to-bracket"></i> Đăng nhập ngay</a>
+        </div>`;
+
+    content.innerHTML = `
+        <div class="modal-hero">
+            <img src="${place.image_url}" alt="${place.name}"
+                 onerror="this.src='https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=800'">
+            <div class="modal-hero-overlay"></div>
+            <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-arrow-left"></i></button>
+        </div>
+
+        <!-- ✨ AI INTRO — đầu modal, ngay dưới ảnh hero -->
+        <div class="ai-banner" id="ai-banner">
+            <div class="ai-banner-left">
+                <div class="ai-banner-icon">✨</div>
+                <div class="ai-banner-text">
+                    <div class="title">AI giới thiệu địa điểm</div>
+                    <div class="subtitle">Tổng quan · Thời gian · Ẩm thực · Mẹo du lịch</div>
+                </div>
+            </div>
+            <button class="btn-ai-generate" id="btn-ai-generate">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Khám phá ngay
+            </button>
+        </div>
+
+        <div class="ai-result-box" id="ai-result-box">
+            <div class="ai-typing-header">
+                <i class="fa-solid fa-robot"></i>
+                TripGo AI
+                <div class="dot-pulse" id="dot-pulse">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+            <div class="ai-text-output" id="ai-text-output"></div>
+            <div class="ai-actions" id="ai-actions" style="display:none">
+                <button class="btn-ai-small" id="btn-ai-retry">
+                    <i class="fa-solid fa-rotate-right"></i> Tạo lại
+                </button>
+                <button class="btn-ai-small" id="btn-ai-copy">
+                    <i class="fa-regular fa-copy"></i> Sao chép
+                </button>
+            </div>
+        </div>
+
+        <div class="modal-body">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:8px">
+                <h2 class="modal-place-name" style="margin-bottom:0">${place.name}</h2>
+                ${mapBtn}
+            </div>
+            <div class="modal-location"><i class="fa-solid fa-location-dot"></i> ${place.location}</div>
+            <div class="modal-rating">
+                <div class="stars">${renderStars(rating)}</div>
+                <span style="font-weight:700;font-size:1rem;color:var(--dark)">${rating}</span>
+                <span style="color:var(--gray-3);font-size:.85rem">(${place.review_count} đánh giá)</span>
+            </div>
+            <p class="modal-desc">${place.description || 'Chưa có mô tả.'}</p>
+            <div class="modal-reviews-title">
+                <i class="fa-regular fa-comment-dots" style="color:var(--primary)"></i>
+                Đánh giá (${reviews.length})
+            </div>
+            <div class="modal-reviews-list">${reviewsHtml}</div>
+            ${writeHtml}
+
+        </div>`;
+
+    // ── Gán events cho AI buttons ──
+    setupAIButtons(place);
+
+    // Star select events
+    const starSelect = document.getElementById('star-select');
+    if (starSelect) {
+        const stars = starSelect.querySelectorAll('i');
+        stars.forEach(star => {
+            star.addEventListener('mouseenter', () => {
+                const v = parseInt(star.dataset.star);
+                stars.forEach((s,i) => s.className = `fa-${i<v?'solid':'regular'} fa-star`);
             });
-        }
-
-        document.getElementById('btn-submit-review')?.addEventListener('click', async () => {
-            const comment = document.getElementById('review-comment')?.value.trim();
-            if (!selectedRating) return showToast('Vui lòng chọn số sao', 'error');
-            if (!comment) return showToast('Vui lòng nhập nhận xét', 'error');
-
-            const btn = document.getElementById('btn-submit-review');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang gửi...';
-            btn.disabled = true;
-
-            const res = await API.addReview({ place_id: currentPlaceId, rating: selectedRating, comment });
-            if (res.message === 'Đánh giá thành công!') {
-                showToast('Đánh giá thành công! 🎉');
-                await openModal(currentPlaceId);
-            } else {
-                showToast(res.message || 'Có lỗi xảy ra', 'error');
-                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Gửi đánh giá';
-                btn.disabled = false;
-            }
+            star.addEventListener('mouseleave', () => {
+                stars.forEach((s,i) => s.className = `fa-${i<selectedRating?'solid':'regular'} fa-star${i<selectedRating?' active':''}`);
+            });
+            star.addEventListener('click', () => {
+                selectedRating = parseInt(star.dataset.star);
+                stars.forEach((s,i) => s.className = `fa-${i<selectedRating?'solid':'regular'} fa-star${i<selectedRating?' active':''}`);
+            });
         });
     }
+
+    document.getElementById('btn-submit-review')?.addEventListener('click', async () => {
+        const comment = document.getElementById('review-comment')?.value.trim();
+        if (!selectedRating) return showToast('Vui lòng chọn số sao', 'error');
+        if (!comment)        return showToast('Vui lòng nhập nhận xét', 'error');
+        const btn = document.getElementById('btn-submit-review');
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang gửi...';
+        btn.disabled = true;
+        const res = await API.addReview({ place_id: currentPlaceId, rating: selectedRating, comment });
+        if (res.message === 'Đánh giá thành công!') {
+            showToast('Đánh giá thành công! 🎉');
+            await openModal(currentPlaceId);
+        } else {
+            showToast(res.message || 'Có lỗi xảy ra', 'error');
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Gửi đánh giá';
+            btn.disabled = false;
+        }
+    });
+}
+
+// ═══════════════════════════════════════════════
+// XEM TRÊN BẢN ĐỒ (từ modal)
+// ═══════════════════════════════════════════════
+function viewOnMap(placeId, lat, lng) {
+    closeModal();
+    switchView('map');
+    setTimeout(() => {
+        const place = allMapPlaces.find(p => p.place_id == placeId);
+        if (place) focusPlace(place);
+        else {
+            // Nếu chưa load map, flyTo trực tiếp
+            if (leafletMap) leafletMap.flyTo([lat, lng], 13, { animate: true, duration: 1.2 });
+        }
+    }, 400);
+}
+
+// ═══════════════════════════════════════════════
+// AI DESCRIBE PLACE (Anthropic API streaming)
+// ═══════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════
+// AI BUTTONS SETUP — gọi sau mỗi lần render modal
+// ═══════════════════════════════════════════════════════
+function setupAIButtons(place) {
+    const btnGen   = document.getElementById('btn-ai-generate');
+    const btnRetry = document.getElementById('btn-ai-retry');
+    const btnCopy  = document.getElementById('btn-ai-copy');
+
+    if (btnGen)   btnGen.addEventListener('click',   () => runAI(place));
+    if (btnRetry) btnRetry.addEventListener('click', () => runAI(place));
+    if (btnCopy)  btnCopy.addEventListener('click',  () => {
+        const txt = document.getElementById('ai-text-output')?.textContent || '';
+        navigator.clipboard?.writeText(txt).then(() => showToast('Đã sao chép nội dung AI!'));
+    });
+}
+
+// ═══════════════════════════════════════════════════════
+// RUN AI — gọi backend proxy → stream về modal
+// ═══════════════════════════════════════════════════════
+async function runAI(place) {
+    const btnGen    = document.getElementById('btn-ai-generate');
+    const resultBox = document.getElementById('ai-result-box');
+    const textOut   = document.getElementById('ai-text-output');
+    const dotPulse  = document.getElementById('dot-pulse');
+    const aiActions = document.getElementById('ai-actions');
+
+    if (!btnGen || !resultBox || !textOut) return;
+
+    // ── Reset UI ──────────────────────────
+    btnGen.disabled = true;
+    btnGen.innerHTML = '<i class="fa-solid fa-spinner spin"></i> Đang tạo...';
+    resultBox.classList.add('visible');
+    textOut.textContent = '';
+    textOut.className   = 'ai-text-output streaming';
+    if (dotPulse)  dotPulse.style.display = 'flex';
+    if (aiActions) aiActions.style.display = 'none';
+
+    // Scroll đến AI section
+    resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    try {
+        const res = await fetch('http://localhost:5000/api/ai/describe', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                placeName:   place.name,
+                location:    place.location,
+                description: place.description || ''
+            })
+        });
+
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || 'Server error ' + res.status);
+        }
+
+        // ── Stream đọc SSE ──────────────────
+        const reader  = res.body.getReader();
+        const decoder = new TextDecoder();
+        let   buffer  = '';
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop();
+
+            for (const line of lines) {
+                if (!line.startsWith('data: ')) continue;
+                const raw = line.slice(6).trim();
+                if (raw === '[DONE]') break;
+                try {
+                    const json = JSON.parse(raw);
+                    if (json.error) throw new Error(json.error);
+                    if (json.text)  textOut.textContent += json.text;
+                } catch (e) {
+                    if (e.message !== 'Unexpected end of JSON input') throw e;
+                }
+            }
+        }
+
+        // ── Hoàn thành ──────────────────────
+        textOut.classList.remove('streaming');
+        if (dotPulse)  dotPulse.style.display = 'none';
+        if (aiActions) aiActions.style.display = 'flex';
+        btnGen.innerHTML = '<i class="fa-solid fa-rotate-right"></i> Tạo lại';
+        btnGen.disabled  = false;
+
+    } catch (err) {
+        textOut.classList.remove('streaming');
+        textOut.innerHTML = `<div class="ai-error-msg">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            ${err.message.includes('ANTHROPIC_API_KEY')
+                ? 'Chưa cấu hình API key. Thêm ANTHROPIC_API_KEY vào file .env'
+                : 'Không thể kết nối. Kiểm tra backend đang chạy và thử lại.'}
+        </div>`;
+        if (dotPulse)  dotPulse.style.display = 'none';
+        if (aiActions) aiActions.style.display = 'flex';
+        btnGen.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Thử lại';
+        btnGen.disabled  = false;
+    }
+}
 </script>
 </body>
 </html>

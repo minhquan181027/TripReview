@@ -24,56 +24,64 @@ const POST_SELECT = `
     LEFT JOIN Places pl ON p.place_id = pl.place_id
 `;
 
-// Lấy danh sách bài đăng (feed chính, phân trang)
+// Lấy danh sách bài đăng (feed chính, phân trang, lọc theo place)
 const getFeed = async (req, res) => {
     try {
-        const { page = 1, limit = 10 } = req.query;
-        const offset = (page - 1) * limit;
-        const pool = await sql.connect();
+        const { page = 1, limit = 10, place_id = '' } = req.query;
+        const offset  = (page - 1) * limit;
+        const placeId = place_id ? parseInt(place_id) : null;
+        const pool    = await sql.connect();
+        const userId  = req.user?.user_id || 0;
 
-        // Lấy user_id nếu có token (để biết đã like chưa)
-        const userId = req.user?.user_id || 0;
-
-        const result = await pool.request()
+        const req2 = pool.request()
             .input('offset', sql.Int, parseInt(offset))
             .input('limit',  sql.Int, parseInt(limit))
-            .input('userId', sql.Int, userId)
-            .query(`
-                SELECT
-                    p.post_id,
-                    p.content,
-                    p.image_url,
-                    p.created_at,
-                    u.user_id    AS author_id,
-                    u.fullname   AS author_name,
-                    u.avatar_url AS author_avatar,
-                    pl.place_id,
-                    pl.name      AS place_name,
-                    pl.location  AS place_location,
-                    (SELECT COUNT(*) FROM PostLikes   l WHERE l.post_id = p.post_id) AS like_count,
-                    (SELECT COUNT(*) FROM PostComments c WHERE c.post_id = p.post_id) AS comment_count,
-                    CASE WHEN EXISTS (
-                        SELECT 1 FROM PostLikes lk WHERE lk.post_id = p.post_id AND lk.user_id = @userId
-                    ) THEN 1 ELSE 0 END AS is_liked
-                FROM Posts p
-                JOIN Users u ON p.user_id = u.user_id
-                LEFT JOIN Places pl ON p.place_id = pl.place_id
-                ORDER BY p.created_at DESC
-                OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY
-            `);
+            .input('userId', sql.Int, userId);
 
-        const total = await pool.request().query(`SELECT COUNT(*) AS total FROM Posts`);
+        // WHERE động theo place filter
+        const whereClause = placeId
+            ? 'WHERE p.place_id = @placeId'
+            : '';
+        if (placeId) req2.input('placeId', sql.Int, placeId);
+
+        const result = await req2.query(`
+            SELECT
+                p.post_id, p.content, p.image_url, p.created_at,
+                u.user_id AS author_id, u.fullname AS author_name, u.avatar_url AS author_avatar,
+                pl.place_id, pl.name AS place_name, pl.location AS place_location,
+                (SELECT COUNT(*) FROM PostLikes   l WHERE l.post_id = p.post_id) AS like_count,
+                (SELECT COUNT(*) FROM PostComments c WHERE c.post_id = p.post_id) AS comment_count,
+                CASE WHEN EXISTS (
+                    SELECT 1 FROM PostLikes lk WHERE lk.post_id = p.post_id AND lk.user_id = @userId
+                ) THEN 1 ELSE 0 END AS is_liked
+            FROM Posts p
+            JOIN Users u ON p.user_id = u.user_id
+            LEFT JOIN Places pl ON p.place_id = pl.place_id
+            ${whereClause}
+            ORDER BY p.created_at DESC
+            OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY
+        `);
+
+        // Đếm tổng (có filter)
+        const countReq = pool.request();
+        if (placeId) countReq.input('placeId', sql.Int, placeId);
+        const total = await countReq.query(
+            `SELECT COUNT(*) AS total FROM Posts p ${whereClause}`
+        );
 
         res.json({
-            posts: result.recordset,
-            total: total.recordset[0].total,
-            page: parseInt(page),
-            totalPages: Math.ceil(total.recordset[0].total / limit)
+            posts:      result.recordset,
+            total:      total.recordset[0].total,
+            page:       parseInt(page),
+            totalPages: Math.ceil(total.recordset[0].total / limit),
+            place_id:   placeId
         });
     } catch (err) {
         res.status(500).json({ message: 'Lỗi server: ' + err.message });
     }
 };
+
+
 
 // Lấy 1 bài đăng theo ID
 const getPostById = async (req, res) => {
@@ -315,4 +323,56 @@ const deleteComment = async (req, res) => {
     }
 };
 
-module.exports = { getFeed, getPostById, createPost, deletePost, toggleLike, getComments, addComment, deleteComment };
+
+// Lấy bài đăng theo place_id (có phân trang)
+const getPostsByPlace = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { page = 1, limit = 10 } = req.query;
+        const offset = (page - 1) * limit;
+        const userId = req.user?.user_id || 0;
+        const pool = await sql.connect();
+
+        const result = await pool.request()
+            .input('place_id', sql.Int, id)
+            .input('offset',   sql.Int, parseInt(offset))
+            .input('limit',    sql.Int, parseInt(limit))
+            .input('userId',   sql.Int, userId)
+            .query(`
+                SELECT
+                    pt.post_id, pt.content, pt.image_url, pt.created_at,
+                    pt.place_id,
+                    u.user_id    AS author_id,
+                    u.fullname   AS author_name,
+                    u.avatar_url AS author_avatar,
+                    pl.name      AS place_name,
+                    pl.location  AS place_location,
+                    (SELECT COUNT(*) FROM PostLikes    lk WHERE lk.post_id = pt.post_id) AS like_count,
+                    (SELECT COUNT(*) FROM PostComments cm WHERE cm.post_id = pt.post_id) AS comment_count,
+                    CASE WHEN EXISTS (
+                        SELECT 1 FROM PostLikes lk WHERE lk.post_id = pt.post_id AND lk.user_id = @userId
+                    ) THEN 1 ELSE 0 END AS is_liked
+                FROM Posts pt
+                JOIN Users  u  ON pt.user_id  = u.user_id
+                JOIN Places pl ON pt.place_id = pl.place_id
+                WHERE pt.place_id = @place_id
+                ORDER BY pt.created_at DESC
+                OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY
+            `);
+
+        const countResult = await pool.request()
+            .input('place_id', sql.Int, id)
+            .query(`SELECT COUNT(*) AS total FROM Posts WHERE place_id = @place_id`);
+
+        res.json({
+            posts:      result.recordset,
+            total:      countResult.recordset[0].total,
+            page:       parseInt(page),
+            totalPages: Math.ceil(countResult.recordset[0].total / limit)
+        });
+    } catch (err) {
+        res.status(500).json({ message: 'Lỗi server: ' + err.message });
+    }
+};
+
+module.exports = { getFeed, getPostById, getPostsByPlace, createPost, deletePost, toggleLike, getComments, addComment, deleteComment };

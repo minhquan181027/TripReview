@@ -1,8 +1,4 @@
-/* ============================================
-   TripGo - Main Stylesheet
-   Aesthetic: Clean Travel Magazine + Modern SaaS
-   Font: Sora (display) + DM Sans (body)
-   ============================================ */
+
 
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap');
 
@@ -40,7 +36,10 @@ html { scroll-behavior: smooth; font-size: 16px; }
 body {
     font-family: var(--font-body);
     color: var(--dark);
-    background: var(--white);
+     background: var(--white);  
+   
+   
+    
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
 }

@@ -66,6 +66,12 @@ const API = {
     // ============================================
     // PLACES
     // ============================================
+    // Lấy tất cả địa điểm có tọa độ cho bản đồ
+    getPlacesForMap: async (search = '') => {
+        const res = await fetch(`${BASE_URL}/places/map?search=${encodeURIComponent(search)}`);
+        return res.json();
+    },
+
     getFeaturedPlaces: async () => {
         const res = await fetch(`${BASE_URL}/places/featured`);
         return res.json();
@@ -76,6 +82,13 @@ const API = {
         const url = `${BASE_URL}/places?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}`;
         const res = await fetch(url);
         return res.json();
+    },
+
+    // Lấy danh sách địa điểm cho dropdown filter
+    getPlacesList: async () => {
+        const res = await fetch(`${BASE_URL}/places?limit=100&page=1`);
+        const data = await res.json();
+        return data.places || [];
     },
 
     getPlaceById: async (id) => {
@@ -119,8 +132,9 @@ const API = {
     // ============================================
     // COMMUNITY POSTS
     // ============================================
-    getFeed: async (page = 1) => {
-        const res = await authFetch(`${BASE_URL}/posts?page=${page}&limit=10`);
+    getFeed: async (page = 1, placeId = '') => {
+        const url = `${BASE_URL}/posts?page=${page}&limit=10${placeId ? '&place_id=' + placeId : ''}`;
+        const res = await authFetch(url);
         return res.json();
     },
 
@@ -129,6 +143,12 @@ const API = {
             method: 'POST',
             body: JSON.stringify({ content, image_url: image_url || null, place_id: place_id || null })
         });
+        return res.json();
+    },
+
+    // Lấy bài đăng theo place_id (có phân trang)
+    getPostsByPlace: async (placeId, page = 1) => {
+        const res = await authFetch(`${BASE_URL}/posts/place/${placeId}?page=${page}&limit=10`);
         return res.json();
     },
 

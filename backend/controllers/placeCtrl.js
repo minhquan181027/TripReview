@@ -14,7 +14,7 @@ const getAllPlaces = async (req, res) => {
             FROM Places p
             LEFT JOIN Reviews r ON p.place_id = r.place_id
             WHERE p.name LIKE @search OR p.location LIKE @search
-            GROUP BY p.place_id, p.name, p.location, p.description, p.image_url, p.created_at
+            GROUP BY p.place_id, p.name, p.location, p.description, p.image_url, p.created_at, p.latitude, p.longitude
             ORDER BY avg_rating DESC
             OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY
         `;
@@ -51,7 +51,7 @@ const getFeaturedPlaces = async (req, res) => {
                    COUNT(r.review_id) AS review_count
             FROM Places p
             LEFT JOIN Reviews r ON p.place_id = r.place_id
-            GROUP BY p.place_id, p.name, p.location, p.description, p.image_url, p.created_at
+            GROUP BY p.place_id, p.name, p.location, p.description, p.image_url, p.created_at, p.latitude, p.longitude
             ORDER BY avg_rating DESC
         `);
         res.json(result.recordset);
@@ -74,7 +74,7 @@ const getPlaceById = async (req, res) => {
                 FROM Places p
                 LEFT JOIN Reviews r ON p.place_id = r.place_id
                 WHERE p.place_id = @id
-                GROUP BY p.place_id, p.name, p.location, p.description, p.image_url, p.created_at
+                GROUP BY p.place_id, p.name, p.location, p.description, p.image_url, p.created_at, p.latitude, p.longitude
             `);
 
         if (result.recordset.length === 0)
@@ -86,4 +86,43 @@ const getPlaceById = async (req, res) => {
     }
 };
 
-module.exports = { getAllPlaces, getFeaturedPlaces, getPlaceById };
+
+// Lấy TẤT CẢ địa điểm có tọa độ (dùng cho bản đồ)
+const getAllPlacesForMap = async (req, res) => {
+    try {
+        const { search = '' } = req.query;
+        const pool = await sql.connect();
+        const result = await pool.request()
+            .input('search', sql.NVarChar, `%${search}%`)
+            .query(`
+                SELECT p.place_id, p.name, p.location, p.image_url,
+                       p.latitude, p.longitude,
+                       ISNULL(AVG(CAST(r.rating AS FLOAT)), 0) AS avg_rating,
+                       COUNT(r.review_id) AS review_count
+                FROM Places p
+                LEFT JOIN Reviews r ON p.place_id = r.place_id
+                WHERE (p.name LIKE @search OR p.location LIKE @search)
+                  AND p.latitude IS NOT NULL AND p.longitude IS NOT NULL
+                GROUP BY p.place_id, p.name, p.location, p.image_url, p.latitude, p.longitude
+                ORDER BY avg_rating DESC
+            `);
+        res.json(result.recordset);
+    } catch (err) {
+        res.status(500).json({ message: 'Lỗi server: ' + err.message });
+    }
+};
+
+// Lấy danh sách rút gọn TẤT CẢ địa điểm (không phân trang) — dùng cho dropdown filter
+const getPlacesList = async (req, res) => {
+    try {
+        const pool = await sql.connect();
+        const result = await pool.request().query(`
+            SELECT place_id, name, location FROM Places ORDER BY name ASC
+        `);
+        res.json(result.recordset);
+    } catch (err) {
+        res.status(500).json({ message: 'Lỗi server: ' + err.message });
+    }
+};
+
+module.exports = { getAllPlaces, getFeaturedPlaces, getPlaceById, getAllPlacesForMap, getPlacesList };
